@@ -5,7 +5,7 @@ class InvariantViolation < StandardError
 end
 
 # TODO chequear que los accessors sean para cada clase
-# TODO chequear si no es mejor poner el before_and_after_each_call en Class. queremos este comportamiento para los mixines? se linearizan...
+# TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
   attr_accessor :before, :after
 
@@ -15,10 +15,10 @@ class Module
       else
         old_action = self.method(moment).call
         self.method((moment.to_s + '=').to_sym).call(
-        proc {
-          old_action.call
-          action.call
-        })
+          proc {
+            self.instance_eval(&old_action)
+            self.instance_eval(&action)
+          })
       end
     end
 
@@ -102,8 +102,8 @@ class Prueba
     self.vida = 10
   end
 
-  # invariant { 1 > 0 }
-  # invariant { 1 > 0 }
+  invariant { 1 > 0 }
+  invariant { 1 > 0 }
   invariant { vida > 20 }
 
   def materia
