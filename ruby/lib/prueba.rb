@@ -30,10 +30,9 @@ class Module
       self.addAction(:before, _before)
       self.addAction(:after, _after)
 
-
       # pp self.methods.include?(:method_added)
 
-      # TODO este if no lo ta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, mejor?
+      # TODO este if no lo ta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
       # if !self.methods.include?(:method_added)
         def self.method_added(method_name)
           # pp 'defining method added'
@@ -62,13 +61,12 @@ class Module
     end
 
   def invariant(&condition)
-    procd_condition = proc &condition
-
     # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
     # tengo que volver a hacer instance_eval para no perder la instnacia
 
+    #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     condition_with_exception = proc {
-      is_fullfilled = self.instance_eval(&procd_condition)
+      is_fullfilled = self.instance_eval(&condition)
       unless is_fullfilled
         raise InvariantViolation
       end
