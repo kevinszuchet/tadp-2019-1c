@@ -4,7 +4,16 @@ class Module
   attr_accessor :before, :after
 
     def addAction(moment, action)
-      # TODO usar getters y setters genericamente para no repetir el agregado de before/after
+      if(!self.method(moment).call)
+          self.method((moment.to_s + '=').to_sym).call(action)
+      else
+        old_action = self.method(moment).call
+        self.method((moment.to_s + '=').to_sym).call(
+        proc {
+          old_action.call
+          action.call
+        })
+      end
     end
 
     # TODO meter una lista con before y afters, o al momento de redefinir el metodo, bindear los procs (para que esten disponibles cuando se ejecuta)
@@ -13,35 +22,9 @@ class Module
       # vamos a ir recolectando estas dos operaciones en bloques que las van a ir agregando al final:
       # uno para el before y otro para el after
 
-      if (!self.before)
-        pp 'before is empty!'
-        self.before = _before
-      else
-        old_before = self.before
-        self.before = proc {
-          old_before.call
-          _before.call
-        }
-      end
+      self.addAction(:before, _before)
+      self.addAction(:after, _after)
 
-      if (!self.after)
-        pp 'after is empty!'
-        self.after = _after
-      else
-        old_after = self.after
-        self.after = proc {
-          old_after.call
-          _after.call
-        }
-      end
-
-      pp '------------------'
-      self.before.call
-      self.after.call
-
-      # self.before = _before
-      # self.after = _after
-      #
       # pp self.methods.include?(:method_added)
       #
       # # TODO este if no lo ta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, mejor?
