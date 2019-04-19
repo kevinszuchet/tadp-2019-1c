@@ -57,18 +57,21 @@ class Module
     procd_condition = proc &condition
 
     condition_with_exception = proc {
-      is_fullfiled = procd_condition.call
-      unless is_fullfiled
+      is_fullfilled = procd_condition.call
+      unless is_fullfilled
         raise InvariantViolation
       end
     }
+
     before_and_after_each_call(proc {}, condition_with_exception)
   end
 
 end
 
 class InvariantViolation < StandardError
-
+  def initialize(msg = "The invariant condition is not being fullfilled")
+    super
+  end
 end
 
 class Prueba
@@ -88,6 +91,8 @@ class Prueba
   #     proc { puts 'Despues del metodo3' }
   # )
 
+  invariant { 1 > 0 }
+  invariant { 1 > 0 }
   invariant { 1 > 8 }
 
   def materia
