@@ -1,3 +1,9 @@
+class InvariantViolation < StandardError
+  def initialize(msg = "The invariant condition is not being fullfilled")
+    super
+  end
+end
+
 # TODO chequear que los accessors sean para cada clase
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. queremos este comportamiento para los mixines? se linearizan...
 class Module
@@ -41,11 +47,13 @@ class Module
 
             original_method = self.instance_method(method_name)
 
+            # TODO agregar este comportamiento al new, para validar cuando se construye
             # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
             self.define_method(method_name) {
-              self.class.before.call
+              self.instance_eval(&self.class.before)
               ret = original_method.bind(self).call
-              self.class.after.call
+              self.instance_eval(&self.class.after)
+              # self.class.after.call
               ret
             }
           end
@@ -56,8 +64,11 @@ class Module
   def invariant(&condition)
     procd_condition = proc &condition
 
+    # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
+    # tengo que volver a hacer instance_eval para no perder la instnacia
+
     condition_with_exception = proc {
-      is_fullfilled = procd_condition.call
+      is_fullfilled = self.instance_eval(&procd_condition)
       unless is_fullfilled
         raise InvariantViolation
       end
@@ -66,12 +77,6 @@ class Module
     before_and_after_each_call(proc {}, condition_with_exception)
   end
 
-end
-
-class InvariantViolation < StandardError
-  def initialize(msg = "The invariant condition is not being fullfilled")
-    super
-  end
 end
 
 class Prueba
@@ -91,9 +96,15 @@ class Prueba
   #     proc { puts 'Despues del metodo3' }
   # )
 
-  invariant { 1 > 0 }
-  invariant { 1 > 0 }
-  invariant { 1 > 8 }
+  attr_accessor :vida
+
+  def initialize
+    self.vida = 10
+  end
+
+  # invariant { 1 > 0 }
+  # invariant { 1 > 0 }
+  invariant { vida > 20 }
 
   def materia
     :tadp
