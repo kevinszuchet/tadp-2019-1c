@@ -9,9 +9,5 @@ describe Prueba do
     it 'debería pasar este otro test' do
       expect(prueba.otraMateria).to be :pdep
     end
-
-    it '' do
-
-    end
   end
 end

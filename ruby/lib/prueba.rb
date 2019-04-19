@@ -80,22 +80,6 @@ class Module
 end
 
 class Prueba
-
-  # before_and_after_each_call(
-  #   proc { puts 'Antes del metodo1' },
-  #   proc { puts 'Despues del metodo1' }
-  # )
-  #
-  # before_and_after_each_call(
-  #     proc { puts 'Antes del metodo2' },
-  #     proc { puts 'Despues del metodo2' }
-  # )
-  #
-  # before_and_after_each_call(
-  #     proc { puts 'Antes del metodo3' },
-  #     proc { puts 'Despues del metodo3' }
-  # )
-
   attr_accessor :vida
 
   def initialize
