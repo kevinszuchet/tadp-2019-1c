@@ -1,4 +1,5 @@
 require_relative 'exceptions'
+require_relative 'method_with_contract'
 
 # TODO chequear que los accessors sean para cada clase
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
@@ -24,7 +25,7 @@ class Module
     end
 
     if self.pre_action && !self.methods_actions.any? { |mwb| mwb.method.equal?(method_name) }
-      self.methods_actions.push(MethodWithBehaviour.new(method_name, self.pre_action))
+      self.methods_actions.push(MethodWithContract.new(method_name, self.pre_action))
       self.pre_action = nil
     end
   end
@@ -73,7 +74,6 @@ class Module
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     condition_with_exception = proc {
-      pp 'executing invariant'
       is_fullfilled = self.instance_eval(&condition)
       unless is_fullfilled
         raise ContractViolation, 'invariant'
@@ -86,7 +86,6 @@ class Module
   def pre(&condition)
     cond = proc &condition
     cond_with_exception = proc {
-      pp 'executing pre'
       res = cond.call
       unless res
         raise ContractViolation, 'pre'
@@ -96,18 +95,6 @@ class Module
     define_method_added
   end
 
-end
-
-class MethodWithBehaviour
-  attr_accessor :method_name, :action
-  def initialize(method_name, action)
-    self.method_name = method_name
-    self.action = action
-  end
-
-  def method
-    method_name
-  end
 end
 
 class Prueba
