@@ -24,18 +24,19 @@ class Module
       self.methods_actions = []
     end
 
-    if self.pre_action && !self.methods_actions.any? { |mwb| mwb.method.equal?(method_name) }
-      self.methods_actions.push(MethodWithContract.new(method_name, self.pre_action))
+    if self.pre_action
+      self.methods_actions.push(MethodWithContract.new(method_name, self.pre_action, :pre))
       self.pre_action = nil
+    end
+
+    if self.post_action
+      self.methods_actions.push(MethodWithContract.new(method_name, self.post_action, :post))
+      self.post_action = nil
     end
   end
 
-  # def method_particular_condition(method_name, contract_type)
-  #   self.methods_actions.detect { |mwb| mwb.method == method_name }
-  # end
-
-  def method_particular_condition(method_name, contract_type)
-    condition = self.methods_actions.detect { |mwb| mwb.method == method_name }
+  def method_particular_condition(method_name, condition_type)
+    condition = self.methods_actions.detect { |mwc| mwc.method == method_name && mwc.type == condition_type }
     if condition
       condition.action
     else
@@ -45,6 +46,10 @@ class Module
 
   def pre_validation(method_name)
     method_particular_condition(method_name, :pre)
+  end
+
+  def post_validation(method_name)
+    method_particular_condition(method_name, :post)
   end
 
   def define_method_added()
@@ -69,6 +74,7 @@ class Module
           self.instance_eval(&self.class.pre_validation(method_name))
           ret = original_method.bind(self).call
           self.instance_eval(&self.class.after) unless !self.class.after
+          self.instance_eval(&self.class.post_validation(method_name))
           ret
         }
 
@@ -111,6 +117,13 @@ class Module
     define_method_added
   end
 
+  def post(&condition)
+    cond_with_exception = condition_with_validation('post', &condition)
+
+    self.post_action = cond_with_exception
+    define_method_added
+  end
+
 end
 
 class Prueba
@@ -122,9 +135,10 @@ class Prueba
 
   invariant { 1 > 0 }
   invariant { 1 > 0 }
-  invariant { vida > 20 }
+  invariant { vida > 0 }
 
   pre { vida > 20 }
+  post { vida > 20 }
   def materia
     :tadp
   end
