@@ -36,7 +36,7 @@ class Module
   end
 
   def method_particular_condition(method_name, condition_type)
-    condition = self.methods_actions.detect { |mwc| mwc.method == method_name && mwc.type == condition_type }
+    condition = self.methods_actions.detect { |mwc| mwc.is_contract_for(method_name, condition_type) }
     if condition
       condition.action
     else
@@ -137,7 +137,7 @@ class Prueba
   invariant { 1 > 0 }
   invariant { vida > 0 }
 
-  pre { vida > 20 }
+  pre { vida > 50 }
   post { vida > 20 }
   def materia
     :tadp
