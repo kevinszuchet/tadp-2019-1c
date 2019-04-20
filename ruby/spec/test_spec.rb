@@ -7,11 +7,11 @@ describe Prueba do
     end
 
     it 'debería pasar este otro test' do
-      expect(prueba.otraMateria).to be :pdep
+      expect(prueba.otra_materia).to be :pdep
     end
 
     it 'atest' do
-      expect(false).to be false
+      expect(prueba.si_la_vida_es_10_sumar_10).to be 20
     end
   end
 end

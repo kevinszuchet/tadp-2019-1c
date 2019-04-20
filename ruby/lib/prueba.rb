@@ -143,7 +143,14 @@ class Prueba
     :tadp
   end
 
-  def otraMateria
+  def otra_materia
     :pdep
+  end
+
+  pre { vida == 10 }
+  post { vida == 21 }
+  def si_la_vida_es_10_sumar_10
+    self.vida += 10
+    self.vida
   end
 end
