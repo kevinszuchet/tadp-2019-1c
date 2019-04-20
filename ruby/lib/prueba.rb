@@ -84,9 +84,8 @@ class Module
   end
 
   def pre(&condition)
-    cond = proc &condition
     cond_with_exception = proc {
-      res = cond.call
+      res = self.instance_eval(&condition)
       unless res
         raise ContractViolation, 'pre'
       end
@@ -108,7 +107,7 @@ class Prueba
   invariant { 1 > 0 }
   invariant { vida > 20 }
 
-  pre { 1 > 10 }
+  pre { vida > 20 }
   def materia
     :tadp
   end
