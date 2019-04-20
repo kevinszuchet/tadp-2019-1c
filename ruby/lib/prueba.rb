@@ -30,6 +30,23 @@ class Module
     end
   end
 
+  # def method_particular_condition(method_name, contract_type)
+  #   self.methods_actions.detect { |mwb| mwb.method == method_name }
+  # end
+
+  def method_particular_condition(method_name, contract_type)
+    condition = self.methods_actions.detect { |mwb| mwb.method == method_name }
+    if condition
+      condition.action
+    else
+      proc {}
+    end
+  end
+
+  def pre_validation(method_name)
+    method_particular_condition(method_name, :pre)
+  end
+
   def define_method_added()
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
     # if !self.methods.include?(:method_added)
@@ -49,7 +66,7 @@ class Module
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) {
           self.instance_eval(&self.class.before) unless !self.class.before
-          self.instance_eval(&self.class.methods_actions.detect { |mwb| mwb.method.equal?(method_name)}.action) unless !self.class.methods_actions.detect { |mwb| mwb.method == method_name }
+          self.instance_eval(&self.class.pre_validation(method_name))
           ret = original_method.bind(self).call
           self.instance_eval(&self.class.after) unless !self.class.after
           ret
@@ -69,6 +86,10 @@ class Module
   end
 
   def condition_with_validation(contract_type, &condition)
+    # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
+    # tengo que volver a hacer instance_eval para no perderla
+
+    #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     proc {
       is_fullfilled = self.instance_eval(&condition)
       unless is_fullfilled
@@ -78,29 +99,14 @@ class Module
   end
 
   def invariant(&condition)
-    # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
-    # tengo que volver a hacer instance_eval para no perder la instnacia
+    cond_with_exception = condition_with_validation('invariant', &condition)
 
-    #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
-    # condition_with_exception = proc {
-    #   is_fullfilled = self.instance_eval(&condition)
-    #   unless is_fullfilled
-    #     raise ContractViolation, 'invariant'
-    #   end
-    # }
-
-    cond = condition_with_validation('invariant', &condition)
-
-    before_and_after_each_call(proc {}, cond)
+    before_and_after_each_call(proc {}, cond_with_exception)
   end
 
   def pre(&condition)
-    cond_with_exception = proc {
-      res = self.instance_eval(&condition)
-      unless res
-        raise ContractViolation, 'pre'
-      end
-    }
+    cond_with_exception = condition_with_validation('pre', &condition)
+
     self.pre_action = cond_with_exception
     define_method_added
   end
