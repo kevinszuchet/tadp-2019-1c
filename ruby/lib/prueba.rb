@@ -68,19 +68,30 @@ class Module
     define_method_added
   end
 
+  def condition_with_validation(contract_type, &condition)
+    proc {
+      is_fullfilled = self.instance_eval(&condition)
+      unless is_fullfilled
+        raise ContractViolation, contract_type
+      end
+    }
+  end
+
   def invariant(&condition)
     # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
     # tengo que volver a hacer instance_eval para no perder la instnacia
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
-    condition_with_exception = proc {
-      is_fullfilled = self.instance_eval(&condition)
-      unless is_fullfilled
-        raise ContractViolation, 'invariant'
-      end
-    }
+    # condition_with_exception = proc {
+    #   is_fullfilled = self.instance_eval(&condition)
+    #   unless is_fullfilled
+    #     raise ContractViolation, 'invariant'
+    #   end
+    # }
 
-    before_and_after_each_call(proc {}, condition_with_exception)
+    cond = condition_with_validation('invariant', &condition)
+
+    before_and_after_each_call(proc {}, cond)
   end
 
   def pre(&condition)
