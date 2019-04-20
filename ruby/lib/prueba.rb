@@ -1,9 +1,4 @@
-class ContractViolation < StandardError
-  def initialize(contract_type)
-    message = "The " + contract_type + " condition is not being fullfilled"
-    super message
-  end
-end
+require_relative 'exceptions'
 
 # TODO chequear que los accessors sean para cada clase
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
