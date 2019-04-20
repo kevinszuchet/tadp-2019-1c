@@ -1,6 +1,7 @@
-class InvariantViolation < StandardError
-  def initialize(msg = "The invariant condition is not being fullfilled")
-    super
+class ContractViolation < StandardError
+  def initialize(contract_type)
+    message = "The " + contract_type + " condition is not being fullfilled"
+    super message
   end
 end
 
@@ -23,24 +24,18 @@ class Module
   end
 
   def add_pre_or_post(method_name)
-    # pp 'about to add pre or post', method_name
     if !self.methods_actions
       self.methods_actions = []
     end
 
-    # pp self.pre_action
-    # pp self.methods_actions
-    # pp self.methods_actions.any? { |mwb| mwb.method.equal?(method_name) }
     if self.pre_action && !self.methods_actions.any? { |mwb| mwb.method.equal?(method_name) }
-      # pp 'adding pre or post condition'
       self.methods_actions.push(MethodWithBehaviour.new(method_name, self.pre_action))
       self.pre_action = nil
-      # pp self.methods_actions
     end
   end
 
   def define_method_added()
-    # TODO este if no lo ta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
+    # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
       if !@updated_methods || !@updated_methods.include?(method_name)
@@ -58,7 +53,7 @@ class Module
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) {
           self.instance_eval(&self.class.before) unless !self.class.before
-          self.instance_eval(&self.class.methods_actions.detect { |mwb| mwb.method.equal?(method_name)}.action) unless !self.class.methods_actions.detect { |mwb| pp mwb; mwb.method == method_name }
+          self.instance_eval(&self.class.methods_actions.detect { |mwb| mwb.method.equal?(method_name)}.action) unless !self.class.methods_actions.detect { |mwb| mwb.method == method_name }
           ret = original_method.bind(self).call
           self.instance_eval(&self.class.after) unless !self.class.after
           ret
@@ -74,8 +69,6 @@ class Module
     self.addAction(:before, _before)
     self.addAction(:after, _after)
 
-    # pp self.methods.include?(:method_added)
-
     define_method_added
   end
 
@@ -85,9 +78,10 @@ class Module
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     condition_with_exception = proc {
+      pp 'executing invariant'
       is_fullfilled = self.instance_eval(&condition)
       unless is_fullfilled
-        raise InvariantViolation
+        raise ContractViolation, 'invariant'
       end
     }
 
@@ -97,9 +91,10 @@ class Module
   def pre(&condition)
     cond = proc &condition
     cond_with_exception = proc {
+      pp 'executing pre'
       res = cond.call
       unless res
-        raise InvariantViolation
+        raise ContractViolation, 'pre'
       end
     }
     self.pre_action = cond_with_exception
@@ -127,9 +122,9 @@ class Prueba
     self.vida = 10
   end
 
-  # invariant { 1 > 0 }
-  # invariant { 1 > 0 }
-  # invariant { vida > 0 }
+  invariant { 1 > 0 }
+  invariant { 1 > 0 }
+  invariant { vida > 20 }
 
   pre { 1 > 10 }
   def materia
