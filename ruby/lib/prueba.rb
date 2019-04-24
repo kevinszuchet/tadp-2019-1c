@@ -69,10 +69,25 @@ class Module
 
         # TODO agregar este comportamiento al new, para validar cuando se construye
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
-        self.define_method(method_name) {
+        self.define_method(method_name) { |*args|
           self.instance_eval(&self.class.before) unless !self.class.before
+
+          # pp self.method(method_name).parameters
+          # pp original_method.parameters
+
+          original_method.parameters.each_with_index do |paramArray, index|
+            pp paramArray[1], binding.local_variable_get(:args)[index]
+            binding.local_variable_set(paramArray[1], binding.local_variable_get(:args)[index])
+            pp binding.local_variables
+          end
+
+          pp binding.local_variables
+          pp binding.local_variable_get(:args)
+          # pp args
+          # pp self.method(method_name).parameters[0][1]
           self.instance_eval(&self.class.pre_validation(method_name))
-          ret = original_method.bind(self).call
+          # TODO agregarle los parametros al call
+          ret = original_method.bind(self).call(*args)
           self.instance_eval(&self.class.after) unless !self.class.after
           self.instance_eval(&self.class.post_validation(method_name))
           ret
@@ -87,6 +102,25 @@ class Module
     # uno para el before y otro para el after
     self.addAction(:before, _before)
     self.addAction(:after, _after)
+
+    define_method_added
+  end
+
+  def before_and_after_each_call2(_before, _after, type)
+    # TODO se podria transformar en un objeto y usarlos polimorficamente
+    if(type == :invariant)
+      # # vamos a ir recolectando estas dos operaciones en bloques que las van a ir agregando al final:
+      # # uno para el before y otro para el after
+      # self.addAction(:before, _before)
+      # self.addAction(:after, _after)
+
+      # agregar methodwithcontract a lista para invariants (restricciones para todos los metodos)
+    else
+      #agregar a lista para metodo siguiente (a pre's o post's)
+    end
+
+    # si es invariant, agregar un objeto a la lista de invariants
+    # sino, agregar uno que se va a procesar para el siguiente metodo
 
     define_method_added
   end
@@ -114,6 +148,7 @@ class Module
     cond_with_exception = condition_with_validation('pre', &condition)
 
     self.pre_action = cond_with_exception
+    # before_and_after_each_call(cond_with_exception, proc {})
     define_method_added
   end
 
@@ -148,9 +183,9 @@ class Prueba
   end
 
   pre { vida == 10 }
-  post { vida == 21 }
-  def si_la_vida_es_10_sumar_10
-    self.vida += 10
+  # post { vida == 21 }
+  def si_la_vida_es_10_sumar(vida, a)
+    self.vida += vida
     self.vida
   end
 end
