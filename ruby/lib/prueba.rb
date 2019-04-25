@@ -131,7 +131,9 @@ class Module
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     proc {
-      is_fullfilled = self.instance_eval(&condition)
+      condition.binding.local_variable_set(:una_vida, 10)
+      pp condition.binding.local_variables
+      is_fullfilled = self.instance_exec &condition
       unless is_fullfilled
         raise ContractViolation, contract_type
       end
@@ -182,10 +184,10 @@ class Prueba
     :pdep
   end
 
-  pre { vida == 10 }
-  # post { vida == 21 }
-  def si_la_vida_es_10_sumar(vida, a)
-    self.vida += vida
+  pre { una_vida == 10 }
+  post { |res| una_vida == 19 }
+  def si_la_vida_es_10_sumar(una_vida, otra_vida)
+    self.vida += (una_vida + otra_vida)
     self.vida
   end
 end

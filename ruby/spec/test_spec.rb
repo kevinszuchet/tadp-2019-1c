@@ -11,7 +11,7 @@ describe Prueba do
     end
 
     it 'atest' do
-      expect(prueba.si_la_vida_es_10_sumar(8, 1)).to be 20
+      expect(prueba.si_la_vida_es_10_sumar(8, 1)).to be 19
     end
   end
 end
