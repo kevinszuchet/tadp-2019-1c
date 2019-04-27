@@ -25,4 +25,8 @@ describe 'Invariant' do
   it 'should explode if a class has several invariants and one is a contract violation' do
     expect_violation{ClassWithSeveralInvariantsOneViolation.new.some_method}
   end
+
+  it 'should return the method result if the invariant is fulfilled' do
+    expect(ClassWithNoInvariantViolation.new.some_method_with_return).to eq 10
+  end
 end
