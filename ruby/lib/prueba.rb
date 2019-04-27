@@ -71,20 +71,6 @@ class Module
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) { |*args|
           self.instance_eval(&self.class.before) unless !self.class.before
-
-          # pp self.method(method_name).parameters
-          # pp original_method.parameters
-
-          original_method.parameters.each_with_index do |paramArray, index|
-            pp paramArray[1], binding.local_variable_get(:args)[index]
-            binding.local_variable_set(paramArray[1], binding.local_variable_get(:args)[index])
-            pp binding.local_variables
-          end
-
-          pp binding.local_variables
-          pp binding.local_variable_get(:args)
-          # pp args
-          # pp self.method(method_name).parameters[0][1]
           self.instance_eval(&self.class.pre_validation(method_name))
           # TODO agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
@@ -131,10 +117,8 @@ class Module
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     proc {
-      condition.binding.local_variable_set(:una_vida, 10)
-      pp condition.binding.local_variables
       is_fullfilled = self.instance_exec &condition
-      unless is_fullfilled
+      unless is_fullfilled.equal?(nil) || is_fullfilled
         raise ContractViolation, contract_type
       end
     }
@@ -180,12 +164,13 @@ class Prueba
     :tadp
   end
 
+  pre {}
   def otra_materia
     :pdep
   end
 
-  pre { una_vida == 10 }
-  post { |res| una_vida == 19 }
+  pre { vida == 10 }
+  post { vida == 19 }
   def si_la_vida_es_10_sumar(una_vida, otra_vida)
     self.vida += (una_vida + otra_vida)
     self.vida
