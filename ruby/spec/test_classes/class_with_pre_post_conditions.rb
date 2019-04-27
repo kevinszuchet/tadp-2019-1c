@@ -22,4 +22,9 @@ class ClassWithPreAndPostConditions
   def method_with_accessor_pre_violation
 
   end
+
+  pre { some_accessor > 5 }
+  def method_with_normal_return
+    8
+  end
 end

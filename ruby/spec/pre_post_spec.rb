@@ -19,4 +19,8 @@ describe 'Invariant' do
   it 'should explode if the pre condition is not fulfilled' do
     expect_violation {an_instance.method_with_accessor_pre_violation}
   end
+
+  it 'should return as the method if there is no contract violation' do
+    expect(an_instance.method_with_normal_return).to eq 8
+  end
 end
