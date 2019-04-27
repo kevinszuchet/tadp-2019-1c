@@ -1,7 +1,6 @@
 require 'require_all'
 require_rel 'test_classes'
 
-require_relative '../lib/exceptions'
 require_relative './spec_helpers/violation_checker'
 
 describe 'Invariant' do
