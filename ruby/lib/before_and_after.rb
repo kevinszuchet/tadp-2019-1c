@@ -74,10 +74,9 @@ class Module
             self.instance_eval(&self.class.after)
           end
 
-          self.instance_eval(&self.class.post_validation(method_name))
+          self.instance_exec(ret, &self.class.post_validation(method_name))
           ret
         }
-
       end
     end
   end
@@ -110,27 +109,37 @@ class Module
     define_method_added
   end
 
-  def condition_with_validation(contract_type, &condition)
-    # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
-    # tengo que volver a hacer instance_eval para no perderla
-
-    #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
-    proc {
-      is_fullfilled = self.instance_exec &condition
-      unless is_fullfilled.nil? || is_fullfilled
+  def fulfillment_validation(contract_type)
+    proc do |is_fulfilled|
+      unless is_fulfilled.nil? || is_fulfilled
         raise ContractViolation, contract_type
       end
+    end
+  end
+
+  def fulfillment_validation_without_parameters(contract_type, &condition)
+    condition_with_validation = fulfillment_validation(contract_type)
+    proc {
+      condition_with_validation.call(self.instance_eval(&condition))
+    }
+  end
+
+  def fulfillment_validation_with_parameters(contract_type, &condition)
+    condition_with_validation = fulfillment_validation(contract_type)
+    proc { |result|
+      condition_with_validation.call(self.instance_exec(result, &condition))
     }
   end
 
   def invariant(&condition)
-    cond_with_exception = condition_with_validation('invariant', &condition)
+    cond_with_exception = fulfillment_validation_without_parameters('invariant', &condition)
 
     before_and_after_each_call(proc {}, cond_with_exception)
   end
 
+  # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    cond_with_exception = condition_with_validation('pre', &condition)
+    cond_with_exception = fulfillment_validation_without_parameters('pre', &condition)
 
     self.pre_action = cond_with_exception
     # before_and_after_each_call(cond_with_exception, proc {})
@@ -138,7 +147,7 @@ class Module
   end
 
   def post(&condition)
-    cond_with_exception = condition_with_validation('post', &condition)
+    cond_with_exception = fulfillment_validation_with_parameters('post', &condition)
 
     self.post_action = cond_with_exception
     define_method_added

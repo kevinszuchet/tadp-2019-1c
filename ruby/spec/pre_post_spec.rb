@@ -3,7 +3,7 @@ require_rel 'test_classes'
 
 require_relative './spec_helpers/violation_checker'
 
-describe 'Invariant' do
+describe 'Pre and post' do
   include ViolationChecker
 
   let(:an_instance) { ClassWithPreAndPostConditions.new }

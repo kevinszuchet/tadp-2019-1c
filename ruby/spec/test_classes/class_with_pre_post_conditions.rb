@@ -25,8 +25,9 @@ class ClassWithPreAndPostConditions
     8
   end
 
-  post { 0 < 2 }
+  post { |result| result == 11 }
   def method_with_post_ok
+    11
   end
 
   pre { some_accessor == 10 }
