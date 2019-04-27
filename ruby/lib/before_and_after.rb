@@ -7,7 +7,7 @@ class Module
   attr_accessor :before, :after, :pre_action, :post_action, :methods_actions
 
   def add_action(moment, action)
-    if(!self.method(moment).call)
+    if !self.method(moment).call
       self.method((moment.to_s + '=').to_sym).call(action)
     else
       old_action = self.method(moment).call
@@ -37,7 +37,7 @@ class Module
 
   def method_particular_condition(method_name, condition_type)
     condition = methods_actions.detect { |mwc| mwc.is_contract_for(method_name, condition_type) }
-    condition && condition.action || proc {}
+    condition&.action || proc {}
   end
 
   def pre_validation(method_name)
@@ -64,11 +64,18 @@ class Module
         # TODO agregar este comportamiento al new, para validar cuando se construye
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) { |*args|
-          self.instance_eval(&self.class.before) unless !self.class.before
+          if self.class.before
+            self.instance_eval(&self.class.before)
+          end
+
           self.instance_eval(&self.class.pre_validation(method_name))
-          # TODO agregarle los parametros al call
+          # TODO (terminar de) agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
-          self.instance_eval(&self.class.after) unless !self.class.after
+
+          if self.class.after
+            self.instance_eval(&self.class.after)
+          end
+
           self.instance_eval(&self.class.post_validation(method_name))
           ret
         }
