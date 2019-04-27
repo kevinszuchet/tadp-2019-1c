@@ -1,4 +1,4 @@
-require_relative 'before_and_after'
+require_relative '../../lib/before_and_after'
 
 class Prueba
   attr_accessor :vida
@@ -9,7 +9,7 @@ class Prueba
 
   invariant { 1 > 0 }
   invariant { 1 > 0 }
-  invariant { vida > 0 }
+  invariant { vida > 50 }
 
   pre { vida > 50 }
   post { vida > 20 }

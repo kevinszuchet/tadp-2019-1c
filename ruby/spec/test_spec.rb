@@ -1,8 +1,10 @@
-describe Prueba do
+require_relative './test_classes/prueba'
+
+describe 'Prueba' do
   let(:prueba) { Prueba.new }
 
   describe '#materia' do
-    it 'debería pasar este test' do
+    it 'no deberia romper al instanciar una clase sin invariants' do
       expect(prueba.materia).to be :tadp
     end
 
@@ -12,6 +14,10 @@ describe Prueba do
 
     it 'atest' do
       expect(prueba.si_la_vida_es_10_sumar(8, 1)).to be 19
+    end
+
+    it 'tt' do
+      1 > 0
     end
   end
 end
