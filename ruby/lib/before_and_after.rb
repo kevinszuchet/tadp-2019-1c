@@ -20,9 +20,7 @@ class Module
   end
 
   def add_pre_or_post(method_name)
-    unless self.methods_actions
-      self.methods_actions = []
-    end
+    self.methods_actions ||= []
 
     if self.pre_action
       methods_actions.push(MethodWithContract.new(method_name, pre_action, :pre))
