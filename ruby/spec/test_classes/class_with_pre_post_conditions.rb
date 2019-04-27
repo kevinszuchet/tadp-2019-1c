@@ -9,12 +9,17 @@ class ClassWithPreAndPostConditions
   end
 
   pre { 1 > 0 }
-  def some_method_with_pre()
+  def some_method_with_pre
 
   end
 
   pre { some_accessor > 0 }
   def method_with_accessor_pre
+
+  end
+
+  pre { some_accessor < 0 }
+  def method_with_accessor_pre_violation
 
   end
 end

@@ -15,4 +15,8 @@ describe 'Invariant' do
   it 'should not throw an exception if a pre condition is fulfilled with an accessor' do
     expect_fulfillment {an_instance.method_with_accessor_pre}
   end
+
+  it 'should explode if the pre condition is not fulfilled' do
+    expect_violation {an_instance.method_with_accessor_pre_violation}
+  end
 end

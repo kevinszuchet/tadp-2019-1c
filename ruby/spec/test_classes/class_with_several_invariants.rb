@@ -5,7 +5,6 @@ class ClassWithSeveralInvariantsOneViolation
   invariant { -3 < -2 }
   invariant { 20 == 0 }
 
-  def some_method()
-
+  def some_method
   end
 end
