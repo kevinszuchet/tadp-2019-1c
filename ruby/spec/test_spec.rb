@@ -1,16 +1,20 @@
 require 'require_all'
 require_rel 'test_classes'
 
-describe 'Prueba' do
+require_relative '../lib/exceptions'
+
+require_relative '../lib/before_and_after'
+
+describe 'Invariant' do
   let(:prueba) { Prueba.new }
 
   describe '#materia' do
-    it 'no deberia romper al instanciar una clase sin invariants' do
-      # expect(ClassWithoutInvariants.new).to be :tadp
+    it 'should not throw an exception if a class has no invariants' do
+      expect{ClassWithoutInvariants.new.some_method}.to_not raise_error()
     end
 
-    it 'debería pasar este otro test' do
-      expect(prueba.otra_materia).to be :pdep
+    it 'should throw invariant violation if a class breaks the contract' do
+      expect{ClassWithInvariantViolation.new.some_method}.to raise_error(ContractViolation)
     end
 
     it 'atest' do
