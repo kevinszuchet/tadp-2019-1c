@@ -1,11 +1,12 @@
-require_relative './test_classes/prueba'
+require 'require_all'
+require_rel 'test_classes'
 
 describe 'Prueba' do
   let(:prueba) { Prueba.new }
 
   describe '#materia' do
     it 'no deberia romper al instanciar una clase sin invariants' do
-      expect(prueba.materia).to be :tadp
+      # expect(ClassWithoutInvariants.new).to be :tadp
     end
 
     it 'debería pasar este otro test' do
