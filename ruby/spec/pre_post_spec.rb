@@ -23,4 +23,12 @@ describe 'Invariant' do
   it 'should return as the method if there is no contract violation' do
     expect(an_instance.method_with_normal_return).to eq 8
   end
+
+  it 'should not explode if the post is fulfilled' do
+    expect_fulfillment {an_instance.method_with_post_ok}
+  end
+
+  it 'should not explode if both pre and post are fulfilled' do
+    expect_fulfillment {an_instance.method_with_pre_and_post_ok}
+  end
 end
