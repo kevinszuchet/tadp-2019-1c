@@ -6,7 +6,7 @@ require_relative 'method_with_contract'
 class Module
   attr_accessor :before, :after, :pre_action, :post_action, :methods_actions
 
-  def addAction(moment, action)
+  def add_action(moment, action)
     if(!self.method(moment).call)
         self.method((moment.to_s + '=').to_sym).call(action)
     else
@@ -20,28 +20,24 @@ class Module
   end
 
   def add_pre_or_post(method_name)
-    if !self.methods_actions
+    unless self.methods_actions
       self.methods_actions = []
     end
 
     if self.pre_action
-      self.methods_actions.push(MethodWithContract.new(method_name, self.pre_action, :pre))
+      methods_actions.push(MethodWithContract.new(method_name, pre_action, :pre))
       self.pre_action = nil
     end
 
     if self.post_action
-      self.methods_actions.push(MethodWithContract.new(method_name, self.post_action, :post))
+      methods_actions.push(MethodWithContract.new(method_name, post_action, :post))
       self.post_action = nil
     end
   end
 
   def method_particular_condition(method_name, condition_type)
-    condition = self.methods_actions.detect { |mwc| mwc.is_contract_for(method_name, condition_type) }
-    if condition
-      condition.action
-    else
-      proc {}
-    end
+    condition = methods_actions.detect { |mwc| mwc.is_contract_for(method_name, condition_type) }
+    condition && condition.action || proc {}
   end
 
   def pre_validation(method_name)
@@ -56,11 +52,9 @@ class Module
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
-      if !@updated_methods || !@updated_methods.include?(method_name)
-        if !@updated_methods
-          @updated_methods = []
-        end
+      @updated_methods ||= []
 
+      unless @updated_methods && @updated_methods.include?(method_name)
         @updated_methods.push(method_name)
 
         add_pre_or_post(method_name)
@@ -86,8 +80,8 @@ class Module
   def before_and_after_each_call(_before, _after)
     # vamos a ir recolectando estas dos operaciones en bloques que las van a ir agregando al final:
     # uno para el before y otro para el after
-    self.addAction(:before, _before)
-    self.addAction(:after, _after)
+    self.add_action(:before, _before)
+    self.add_action(:after, _after)
 
     define_method_added
   end
@@ -118,7 +112,7 @@ class Module
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     proc {
       is_fullfilled = self.instance_exec &condition
-      unless is_fullfilled.equal?(nil) || is_fullfilled
+      unless is_fullfilled.nil? || is_fullfilled
         raise ContractViolation, contract_type
       end
     }
