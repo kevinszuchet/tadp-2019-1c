@@ -75,7 +75,7 @@ class Module
           # TODO agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
           self.instance_eval(&self.class.after) unless !self.class.after
-          self.instance_eval(&self.class.post_validation(method_name))
+          self.instance_exec(ret, &self.class.post_validation(method_name))
           ret
         }
 
@@ -112,12 +112,12 @@ class Module
   end
 
   def condition_with_validation(contract_type, &condition)
-    # esto es medio paja: como estoy envolviendo el bloque procd_condition en este otro, y es este otro el que tiene a self como la instancia,
+    # esto es medio paja: como estoy envolviendo el bloque condition en este otro, y es este otro el que tiene a self como la instancia,
     # tengo que volver a hacer instance_eval para no perderla
 
     #TODO no estoy seguro de si hace falta el instance_eval en condition, porque no puedo ejecutar el bloque de otra forma (y sin envolverlo en un proc)
     proc {
-      is_fullfilled = self.instance_exec &condition
+      is_fullfilled = self.instance_eval(&condition)
       unless is_fullfilled.equal?(nil) || is_fullfilled
         raise ContractViolation, contract_type
       end
@@ -131,17 +131,29 @@ class Module
   end
 
   def pre(&condition)
-    cond_with_exception = condition_with_validation('pre', &condition)
+    cond = proc {
+      is_fullfilled = self.instance_eval(&condition)
+      unless is_fullfilled
+        raise ContractViolation, :pre
+      end
+    }
+    cond_with_exception = condition_with_validation('pre', &cond)
 
-    self.pre_action = cond_with_exception
+    self.pre_action = cond
     # before_and_after_each_call(cond_with_exception, proc {})
     define_method_added
   end
 
   def post(&condition)
-    cond_with_exception = condition_with_validation('post', &condition)
+    cond = proc { |result|
+      is_fullfilled = self.instance_exec(result, &condition)
+      unless is_fullfilled
+        raise ContractViolation, :post
+      end
+    }
+    cond_with_exception = condition_with_validation('post', &cond)
 
-    self.post_action = cond_with_exception
+    self.post_action = cond
     define_method_added
   end
 
@@ -159,7 +171,7 @@ class Prueba
   invariant { vida > 0 }
 
   pre { vida > 50 }
-  post { vida > 20 }
+  post { |result| vida > 20 }
   def materia
     :tadp
   end
@@ -170,7 +182,7 @@ class Prueba
   end
 
   pre { vida == 10 }
-  post { vida == 19 }
+  post { |result| pp 'result', result; result == 19 }
   def si_la_vida_es_10_sumar(una_vida, otra_vida)
     self.vida += (una_vida + otra_vida)
     self.vida
