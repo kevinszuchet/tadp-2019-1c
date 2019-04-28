@@ -62,13 +62,8 @@ class Module
         define_method(method_name) { |*args|
           instance_eval(&self.class.before) if self.class.before
 
-          original_method.parameters.each_with_index do |(_, arg), index|
-            self.define_singleton_method(arg) do |*args|
-              args[index]
-            end
-          end
+          original_method.parameters.each_with_index { |(_, arg), index| define_singleton_method(arg) { args[index] } }
 
-          pp self.singleton_methods
           instance_eval(&self.class.pre_validation(method_name))
           # TODO (terminar de) agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
@@ -76,6 +71,9 @@ class Module
           instance_eval(&self.class.after) if self.class.after
 
           instance_exec(ret, &self.class.post_validation(method_name))
+
+          original_method.parameters.each_with_index { |(_, arg), index| singleton_class.remove_method(arg) }
+
           ret
         }
       end
