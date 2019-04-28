@@ -38,16 +38,16 @@ class ValidationBuilder
     for_particular_method = self.is_for_particular_method
     for_method = self.for_method
 
-    proc do
+    proc  do |result|
       if for_particular_method
         if for_method == method_name
-          is_fulfilled = self.instance_eval(&validation_condition)
+          is_fulfilled = self.instance_exec(result, &validation_condition)
           unless is_fulfilled.nil? || is_fulfilled
             raise ContractViolation, 'pre or post'
           end
         end
       else
-        is_fulfilled = self.instance_eval(&validation_condition)
+        is_fulfilled = self.instance_exec(result, &validation_condition)
         unless is_fulfilled.nil? || is_fulfilled
           raise ContractViolation, 'invariant'
         end

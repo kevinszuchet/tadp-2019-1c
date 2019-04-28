@@ -83,7 +83,7 @@ class Module
 
         # self.before.set_particular_method(method_name) unless !self.before
         # self.after.set_particular_method(method_name) unless !self.after
-        self.before_validations[-1]&.set_particular_method(method_name)
+        self.before_validations[-2]&.set_particular_method(method_name)
         self.after_validations[-1]&.set_particular_method(method_name)
 
         # TODO agregar este comportamiento al new, para validar cuando se construye
@@ -115,7 +115,7 @@ class Module
           # end
 
           self.class.after_validations.each { |validation|
-            self.instance_eval(&validation.build(method_name))
+            self.instance_exec(ret, &validation.build(method_name))
           }
 
           # self_clone2 = self.class.clone_and_add_parameters_getters(original_method.parameters)
