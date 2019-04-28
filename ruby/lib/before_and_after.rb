@@ -1,5 +1,4 @@
 require_relative 'exceptions'
-require_relative 'method_with_contract'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
@@ -33,17 +32,16 @@ class Module
     end
   end
 
-  def method_particular_condition(method_name, condition_type)
-    condition = methods_actions[condition_type][method_name]
-    condition || proc {}
+  def method_particular_condition(condition_type, method_name)
+    methods_actions[condition_type][method_name] || proc {}
   end
 
   def pre_validation(method_name)
-    method_particular_condition(method_name, :pre)
+    method_particular_condition(:pre, method_name)
   end
 
   def post_validation(method_name)
-    method_particular_condition(method_name, :post)
+    method_particular_condition(:post, method_name)
   end
 
   def define_method_added
@@ -72,7 +70,7 @@ class Module
 
           instance_exec(ret, &self.class.post_validation(method_name))
 
-          original_method.parameters.each_with_index { |(_, arg), index| singleton_class.remove_method(arg) }
+          original_method.parameters.each_with_index { |(_, arg), _| singleton_class.remove_method(arg) }
 
           ret
         }
