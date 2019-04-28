@@ -16,7 +16,7 @@ class ClassWithPreAndPostConditions
   def method_with_accessor_pre
   end
 
-  pre { some_accessor < 0 }
+  pre { pp 'executing pre'; some_accessor < 0 }
   def method_with_accessor_pre_violation
   end
 

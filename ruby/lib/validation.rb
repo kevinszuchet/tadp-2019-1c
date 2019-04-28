@@ -33,24 +33,20 @@ class ValidationBuilder
   end
 
   # TODO devuelve un proc que bindea la instancia (ya esta en self) a la condition original
-  def build(method_name)
+  def build(method_name, parameters)
     validation_condition = self.condition
     for_particular_method = self.is_for_particular_method
     for_method = self.for_method
 
+    # pp method_name,  for_particular_method, for_method
+
+    # TODO agregar el nombre a ContractViolation!
     proc  do |result|
-      if for_particular_method
-        if for_method == method_name
+      if (for_particular_method && for_method == method_name) || !for_particular_method
           is_fulfilled = self.instance_exec(result, &validation_condition)
           unless is_fulfilled.nil? || is_fulfilled
-            raise ContractViolation, 'pre or post'
+            raise ContractViolation, 'TODO'
           end
-        end
-      else
-        is_fulfilled = self.instance_exec(result, &validation_condition)
-        unless is_fulfilled.nil? || is_fulfilled
-          raise ContractViolation, 'invariant'
-        end
       end
     end
   end

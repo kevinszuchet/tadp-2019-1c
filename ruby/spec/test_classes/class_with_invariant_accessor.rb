@@ -8,7 +8,7 @@ class ClassWithInvariantAccessor
     self.some_accessor = 10
   end
 
-  invariant { some_accessor > 20 }
+  invariant { pp 'executing invariant'; some_accessor > 20 }
 
   def some_method()
 
