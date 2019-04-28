@@ -86,6 +86,8 @@ class Module
         self.before_validations.filter { |validation| !validation.for_method }
           .each {|validation| validation.set_particular_method(method_name) }
 
+        self.after_validations[-1]&.set_particular_method(method_name)
+
         # TODO agregar este comportamiento al new, para validar cuando se construye
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) { |*args|

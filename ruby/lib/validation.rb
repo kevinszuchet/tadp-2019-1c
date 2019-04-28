@@ -23,9 +23,9 @@ class ValidationBuilder
     self
   end
 
-  def set_args
-    self
-  end
+  # def set_args
+  #   self
+  # end
 
   def set_particular_method(method_name)
     self.for_method = method_name
