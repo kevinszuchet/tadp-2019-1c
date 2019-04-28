@@ -12,42 +12,42 @@ class ClassWithPreAndPostConditions
   def some_method_with_pre
   end
 
-  pre { some_accessor > 0 }
-  def method_with_accessor_pre
-  end
-
-  pre { some_accessor < 0 }
-  def method_with_accessor_pre_violation
-  end
-
-  pre { some_accessor > 5 }
-  def method_with_normal_return
-    8
-  end
-
-  post { 1 > 0 }
-  def method_with_post_ok
-    11
-  end
-
-  pre { some_accessor == 10 }
-  post { some_accessor == 11 }
-  def method_with_pre_and_post_ok
-    self.some_accessor+= 1
-  end
-
-  post { |result| result == 11 }
-  def method_with_pre_method_result
-    11
-  end
-
-  post {}
-  def method_with_empty_post
-  end
-
-  pre { false != true && an_arg == "hello" }
-  post { |result| result == an_arg }
-  def method_with_arg(an_arg)
-    an_arg
-  end
+  # pre { some_accessor > 0 }
+  # def method_with_accessor_pre
+  # end
+  #
+  # pre { some_accessor < 0 }
+  # def method_with_accessor_pre_violation
+  # end
+  #
+  # pre { some_accessor > 5 }
+  # def method_with_normal_return
+  #   8
+  # end
+  #
+  # post { 1 > 0 }
+  # def method_with_post_ok
+  #   11
+  # end
+  #
+  # pre { some_accessor == 10 }
+  # post { some_accessor == 11 }
+  # def method_with_pre_and_post_ok
+  #   self.some_accessor+= 1
+  # end
+  #
+  # post { |result| result == 11 }
+  # def method_with_pre_method_result
+  #   11
+  # end
+  #
+  # post {}
+  # def method_with_empty_post
+  # end
+  #
+  # pre { false != true && an_arg == "hello" }
+  # post { |result| result == an_arg }
+  # def method_with_arg(an_arg)
+  #   an_arg
+  # end
 end
