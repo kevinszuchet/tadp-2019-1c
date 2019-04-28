@@ -40,4 +40,3 @@ describe 'Pre and post' do
     expect_fulfillment {an_instance.method_with_empty_post}
   end
 end
-

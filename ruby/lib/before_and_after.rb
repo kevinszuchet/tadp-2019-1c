@@ -1,7 +1,6 @@
 require_relative 'exceptions'
 require_relative 'method_with_contract'
 
-# TODO chequear que los accessors sean para cada clase
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
   attr_accessor :before, :after, :pre_action, :post_action, :methods_actions
@@ -20,22 +19,22 @@ class Module
   end
 
   def add_pre_or_post(method_name)
-    self.methods_actions ||= []
+    self.methods_actions ||= { :pre => Hash.new, :post => Hash.new }
 
     if self.pre_action
-      methods_actions.push(MethodWithContract.new(method_name, pre_action, :pre))
+      methods_actions[:pre][method_name] = pre_action
       self.pre_action = nil
     end
 
     if self.post_action
-      methods_actions.push(MethodWithContract.new(method_name, post_action, :post))
+      methods_actions[:post][method_name] = pre_action
       self.post_action = nil
     end
   end
 
   def method_particular_condition(method_name, condition_type)
-    condition = methods_actions.detect { |mwc| mwc.is_contract_for(method_name, condition_type) }
-    condition&.action || proc {}
+    condition = methods_actions[condition_type][method_name]
+    condition || proc {}
   end
 
   def pre_validation(method_name)
@@ -46,7 +45,7 @@ class Module
     method_particular_condition(method_name, :post)
   end
 
-  def define_method_added()
+  def define_method_added
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
