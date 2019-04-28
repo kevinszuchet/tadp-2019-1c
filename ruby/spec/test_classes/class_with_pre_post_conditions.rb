@@ -40,4 +40,8 @@ class ClassWithPreAndPostConditions
   def method_with_pre_method_result
     11
   end
+
+  post {}
+  def method_with_empty_post
+  end
 end
