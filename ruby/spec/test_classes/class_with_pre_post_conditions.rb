@@ -45,7 +45,8 @@ class ClassWithPreAndPostConditions
   def method_with_empty_post
   end
 
-  pre { false != true }
+  pre { false != true && an_arg == "hello" }
+  post { |result| result == an_arg }
   def method_with_arg(an_arg)
     an_arg
   end

@@ -1,5 +1,4 @@
 require_relative 'exceptions'
-require_relative 'method_with_contract'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
@@ -21,13 +20,15 @@ class Module
   def add_pre_or_post(method_name)
     self.methods_actions ||= { :pre => Hash.new, :post => Hash.new }
 
+    # pp self, methods_actions
+
     if self.pre_action
       methods_actions[:pre][method_name] = pre_action
       self.pre_action = nil
     end
 
     if self.post_action
-      methods_actions[:post][method_name] = pre_action
+      methods_actions[:post][method_name] = post_action
       self.post_action = nil
     end
   end
@@ -65,7 +66,17 @@ class Module
             self.instance_eval(&self.class.before)
           end
 
-          self.instance_eval(&self.class.pre_validation(method_name))
+          self_clone = self.clone
+
+          original_method.parameters.each_with_index do |paramArray, index|
+            self_clone.define_singleton_method(paramArray[1]) {
+              args[index]
+            }
+          end
+
+
+          self_clone.instance_eval(&self.class.pre_validation(method_name))
+
           # TODO (terminar de) agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
 
@@ -73,7 +84,15 @@ class Module
             self.instance_eval(&self.class.after)
           end
 
-          self.instance_exec(ret, &self.class.post_validation(method_name))
+          self_clone2 = self.clone
+
+          original_method.parameters.each_with_index do |paramArray, index|
+            self_clone2.define_singleton_method(paramArray[1]) {
+              args[index]
+            }
+          end
+
+          self_clone2.instance_exec(ret, &self.class.post_validation(method_name))
           ret
         }
       end
