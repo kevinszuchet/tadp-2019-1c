@@ -31,4 +31,8 @@ describe 'Pre and post' do
   it 'should not explode if both pre and post are fulfilled' do
     expect_fulfillment {an_instance.method_with_pre_and_post_ok}
   end
+
+  it 'should not explode if the post with the method result is fulfilled' do
+    expect_fulfillment {an_instance.method_with_pre_method_result}
+  end
 end
