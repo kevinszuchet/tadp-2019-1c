@@ -44,4 +44,9 @@ class ClassWithPreAndPostConditions
   post {}
   def method_with_empty_post
   end
+
+  pre { false != true }
+  def method_with_arg(an_arg)
+    an_arg
+  end
 end

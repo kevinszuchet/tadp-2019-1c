@@ -39,4 +39,8 @@ describe 'Pre and post' do
   it 'should not explode if the post is emptyd' do
     expect_fulfillment {an_instance.method_with_empty_post}
   end
+
+  it 'should return the parameter if the method does that and the pre condition is fulfilled' do
+    expect(an_instance.method_with_arg("hello")).to eq "hello"
+  end
 end
