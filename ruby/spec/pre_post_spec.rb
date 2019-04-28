@@ -42,11 +42,6 @@ describe 'Pre and post' do
 
   it 'should return the parameter if the method does that and the pre condition is fulfilled' do
     expect(an_instance.method_with_arg("hello")).to eq "hello"
-    pp an_instance.respond_to?(:an_arg)
-  end
-
-  # TODO revisar este test. habria que hacer el assert adentro del test anterior porque cada test vuelve a definir an_instance
-  it 'should not define methods for the getters and setters needed for the parameters access in the pre/post condition' do
     expect(an_instance.respond_to?(:an_arg)).to eq false
   end
 end
