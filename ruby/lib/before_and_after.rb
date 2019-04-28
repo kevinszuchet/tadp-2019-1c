@@ -46,6 +46,18 @@ class Module
     method_particular_condition(method_name, :post)
   end
 
+  def clone_and_add_parameters_getters(parameters)
+    self_clone = self.clone
+
+    parameters.each_with_index do |paramArray, index|
+      self_clone.define_singleton_method(paramArray[1]) {
+        args[index]
+      }
+    end
+
+    self_clone
+  end
+
   def define_method_added
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
     # if !self.methods.include?(:method_added)
@@ -66,16 +78,15 @@ class Module
             self.instance_eval(&self.class.before)
           end
 
-          self_clone = self.clone
+          # self_clone = self.class.clone_and_add_parameters_getters(original_method.parameters)
 
           original_method.parameters.each_with_index do |paramArray, index|
-            self_clone.define_singleton_method(paramArray[1]) {
+            self.define_singleton_method(paramArray[1]) {
               args[index]
             }
           end
 
-
-          self_clone.instance_eval(&self.class.pre_validation(method_name))
+          self.instance_eval(&self.class.pre_validation(method_name))
 
           # TODO (terminar de) agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
@@ -84,15 +95,16 @@ class Module
             self.instance_eval(&self.class.after)
           end
 
-          self_clone2 = self.clone
+          # self_clone2 = self.class.clone_and_add_parameters_getters(original_method.parameters)
+
+          self.instance_exec(ret, &self.class.post_validation(method_name))
 
           original_method.parameters.each_with_index do |paramArray, index|
-            self_clone2.define_singleton_method(paramArray[1]) {
+            self.singleton_class.remove_method(paramArray[1]) {
               args[index]
             }
           end
 
-          self_clone2.instance_exec(ret, &self.class.post_validation(method_name))
           ret
         }
       end
