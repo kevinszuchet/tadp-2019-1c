@@ -1,3 +1,3 @@
 # TADP
 
-Este repositorio tiene la estructura básica para arrancar a _darle átomos_ a la materia! :rocket:
+Implementación del TP de Contratos 1C2019 del grupo 4 :rocket:
