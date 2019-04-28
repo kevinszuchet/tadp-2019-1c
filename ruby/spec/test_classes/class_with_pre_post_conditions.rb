@@ -46,7 +46,7 @@ class ClassWithPreAndPostConditions
   end
 
   pre { pp 'an_arg is', an_arg; false != true && an_arg == "hello" }
-  post { |result| result == an_arg }
+  post { |result| pp 'executing post'; result == an_arg }
   def method_with_arg(an_arg)
     an_arg
   end

@@ -93,17 +93,18 @@ class Module
           #   self.instance_eval(&self.class.before.build(method_name))
           # end
 
+          original_method.parameters.each_with_index do |paramArray, index|
+            self.define_singleton_method(paramArray[1]) {
+              args[index]
+            }
+          end
+
           self.class.before_validations.each { |validation|
             self.instance_eval(&validation.build(method_name))
           }
 
           # self_clone = self.class.clone_and_add_parameters_getters(original_method.parameters)
 
-          original_method.parameters.each_with_index do |paramArray, index|
-            self.define_singleton_method(paramArray[1]) {
-              args[index]
-            }
-          end
 
           # self.instance_eval(&self.class.pre_validation(method_name))
 
