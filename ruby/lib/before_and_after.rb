@@ -3,23 +3,33 @@ require_relative 'validation'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
-  attr_accessor :before, :after, :pre_action, :post_action, :methods_actions
+  attr_accessor :before, :after, :pre_action, :post_action, :methods_actions, :before_validations, :after_validations
 
-  def add_action(moment, action)
-    if !self.method(moment).call
-      self.method((moment.to_s + '=').to_sym).call(action)
-    else
-      pp 'shuold not enter here'
-      old_action = self.method(moment).call
-      # TODO revisa. esto necesita un validationbuilder pero esta recibiendo un proc
-      self.method((moment.to_s + '=').to_sym).call(
-          proc {
-            self.instance_eval(&old_action)
-            self.instance_eval(&action)
-          }
-      )
-    end
+  def add_before_validation(validation)
+    self.before_validations ||= []
+    self.before_validations.push(validation)
   end
+
+  def add_after_validation(validation)
+    self.after_validations ||= []
+    self.after_validations.push(validation)
+  end
+
+  # TODO evaluar composicion de Validations, para aprovechar esta logica de alguna manera
+  # def add_action(moment, action)
+  #   if !self.method(moment).call
+  #     self.method((moment.to_s + '=').to_sym).call(action)
+  #   else
+  #     old_action = self.method(moment).call
+  #     # TODO revisa. esto necesita un validationbuilder pero esta recibiendo un proc
+  #     self.method((moment.to_s + '=').to_sym).call(
+  #         proc {
+  #           self.instance_eval(&old_action)
+  #           self.instance_eval(&action)
+  #         }
+  #     )
+  #   end
+  # end
 
   # def add_pre_or_post(method_name)
   #   self.methods_actions ||= { :pre => Hash.new, :post => Hash.new }
@@ -71,15 +81,21 @@ class Module
 
         original_method = self.instance_method(method_name)
 
-        self.before.set_particular_method(method_name) unless !self.before
-        self.after.set_particular_method(method_name) unless !self.after
+        # self.before.set_particular_method(method_name) unless !self.before
+        # self.after.set_particular_method(method_name) unless !self.after
+        self.before_validations[-1]&.set_particular_method(method_name)
+        self.after_validations[-1]&.set_particular_method(method_name)
 
         # TODO agregar este comportamiento al new, para validar cuando se construye
         # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) { |*args|
-          if self.class.before
-            self.instance_eval(&self.class.before.build(method_name))
-          end
+          # if self.class.before
+          #   self.instance_eval(&self.class.before.build(method_name))
+          # end
+
+          self.class.before_validations.each { |validation|
+            self.instance_eval(&validation.build(method_name))
+          }
 
           # self_clone = self.class.clone_and_add_parameters_getters(original_method.parameters)
 
@@ -94,9 +110,13 @@ class Module
           # TODO (terminar de) agregarle los parametros al call
           ret = original_method.bind(self).call(*args)
 
-          if self.class.after
-            self.instance_eval(&self.class.after.build(method_name))
-          end
+          # if self.class.after
+          #   self.instance_eval(&self.class.after.build(method_name))
+          # end
+
+          self.class.after_validations.each { |validation|
+            self.instance_eval(&validation.build(method_name))
+          }
 
           # self_clone2 = self.class.clone_and_add_parameters_getters(original_method.parameters)
 
@@ -113,11 +133,13 @@ class Module
   end
 
   def before_and_after_each_call(_before, _after)
-    pp 'before_and_after_each', self
     # vamos a ir recolectando estas dos operaciones en bloques que las van a ir agregando al final:
     # uno para el before y otro para el after
-    self.add_action(:before, _before)
-    self.add_action(:after, _after)
+    # self.add_action(:before, _before)
+    # self.add_action(:after, _after)
+
+    self.add_before_validation(_before)
+    self.add_after_validation(_after)
 
     define_method_added
   end

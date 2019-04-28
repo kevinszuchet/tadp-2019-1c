@@ -1,11 +1,11 @@
 class ValidationBuilder
-  attr_accessor :condition, :has_scoped_parameters, :has_result_parameter, :for_particular_method, :for_method
+  attr_accessor :condition, :has_scoped_parameters, :has_result_parameter, :is_for_particular_method, :for_method
 
   def initialize(&condition)
     self.condition = condition
     self.has_scoped_parameters = false
     self.has_result_parameter = false
-    self.for_particular_method = false
+    self.is_for_particular_method = false
   end
 
   def with_scoped_parameters
@@ -19,7 +19,7 @@ class ValidationBuilder
   end
 
   def for_particular_method
-    self.for_particular_method = true
+    self.is_for_particular_method = true
     self
   end
 
@@ -35,8 +35,9 @@ class ValidationBuilder
   # TODO devuelve un proc que bindea la instancia (ya esta en self) a la condition original
   def build(method_name)
     validation_condition = self.condition
-    for_particular_method = self.for_particular_method
+    for_particular_method = self.is_for_particular_method
     for_method = self.for_method
+
     proc do
       if for_particular_method
         if for_method == method_name
