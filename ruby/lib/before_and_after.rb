@@ -20,8 +20,6 @@ class Module
   def add_pre_or_post(method_name)
     self.methods_actions ||= { :pre => Hash.new, :post => Hash.new }
 
-    # pp self, methods_actions
-
     if self.pre_action
       methods_actions[:pre][method_name] = pre_action
       self.pre_action = nil
@@ -46,17 +44,17 @@ class Module
     method_particular_condition(method_name, :post)
   end
 
-  def clone_and_add_parameters_getters(parameters)
-    self_clone = self.clone
-
-    parameters.each_with_index do |paramArray, index|
-      self_clone.define_singleton_method(paramArray[1]) {
-        args[index]
-      }
-    end
-
-    self_clone
-  end
+  # def clone_and_add_parameters_getters(parameters)
+  #   self_clone = self.clone
+  #
+  #   parameters.each_with_index do |paramArray, index|
+  #     self_clone.define_singleton_method(paramArray[1]) {
+  #       args[index]
+  #     }
+  #   end
+  #
+  #   self_clone
+  # end
 
   def define_method_added
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
@@ -99,10 +97,8 @@ class Module
 
           self.instance_exec(ret, &self.class.post_validation(method_name))
 
-          original_method.parameters.each_with_index do |paramArray, index|
-            self.singleton_class.remove_method(paramArray[1]) {
-              args[index]
-            }
+          original_method.parameters.each do |paramArray|
+            self.singleton_class.remove_method(paramArray[1])
           end
 
           ret
