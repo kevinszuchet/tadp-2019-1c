@@ -39,7 +39,7 @@ class Module
             validation.with_parameters(original_method.parameters, args) }
 
           self.class.before_validations.each { |validation|
-            instance_exec(method_name, &validation.build)
+            instance_exec(method_name, &validation.condition)
           }
 
           ret = original_method.bind(self).call(*args)
@@ -48,7 +48,7 @@ class Module
             validation.with_parameters(original_method.parameters, args) }
 
           self.class.after_validations.each { |validation|
-            self.instance_exec(method_name, ret, &validation.build)
+            self.instance_exec(method_name, ret, &validation.condition)
           }
 
           ret
@@ -65,20 +65,20 @@ class Module
   end
 
   def invariant(&condition)
-    cond_with_exception = InvariantValidation.new(&condition)
+    cond_with_exception = InvariantValidation.new('invariant', &condition)
 
     before_and_after_each_call(InvariantValidation.new(&{}), cond_with_exception)
   end
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    cond_with_exception = PrePostValidation.new(&condition)
+    cond_with_exception = PrePostValidation.new('pre', &condition)
 
     before_and_after_each_call(cond_with_exception, PrePostValidation.new(&{}))
   end
 
   def post(&condition)
-    cond_with_exception = PrePostValidation.new(&condition)
+    cond_with_exception = PrePostValidation.new('post', &condition)
 
     before_and_after_each_call(PrePostValidation.new(&{}), cond_with_exception)
   end

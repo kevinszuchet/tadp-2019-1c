@@ -1,13 +1,28 @@
 class InvariantValidation
-  attr_accessor :condition, :already_has_method
+  attr_accessor :condition, :already_has_method, :type
 
-  def initialize(&condition)
+  def initialize(type = nil, &condition)
     self.condition = condition
+    self.type = type
     self.already_has_method = false
   end
 
   # Este no hace nada
-  def for_method(method_name)
+  def for_method(destination_method)
+    validation = self
+    self.already_has_method = true
+    old_condition = self.condition
+    self.condition = proc { |method, method_result|
+      if validation.should_validate(destination_method, method)
+        validation.validate(self, method_result, old_condition)
+      end
+    }
+    self
+  end
+
+  # El invariant siempre tiene que hacer la validacion
+  def should_validate(destination_method, actual_method)
+    true
   end
 
   # Este tampoco hace nada
@@ -15,18 +30,10 @@ class InvariantValidation
     self
   end
 
-  def build
-    validation = self
-    old_condition = self.condition
-    proc { |method, method_result|
-      validation.validate(self, nil, old_condition)
-    }
-  end
-
   def validate(instance, method_result, condition)
     is_fulfilled = instance.instance_exec(method_result, &condition)
     unless is_fulfilled.nil? || is_fulfilled
-      raise ContractViolation, 'TODO'
+      raise ContractViolation, self.type
     end
   end
 
@@ -38,17 +45,8 @@ class InvariantValidation
 end
 
 class PrePostValidation < InvariantValidation
-  # Este agrega el if para ver si se tiene que ejecutar o no
-  def for_method(destination_method)
-    validation = self
-    self.already_has_method = true
-    old_condition = self.condition
-    self.condition = proc { |method, method_result|
-      if method == destination_method
-        validation.validate(self, method_result, old_condition)
-      end
-    }
-    self
+  def should_validate(destination_method, actual_method)
+    actual_method == destination_method
   end
 
   # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar y despues sacarlos
@@ -69,10 +67,6 @@ class PrePostValidation < InvariantValidation
       end
     }
     self
-  end
-
-  def build
-    self.condition
   end
 
   # def validate(method, method_result)
