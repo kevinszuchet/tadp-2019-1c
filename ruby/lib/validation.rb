@@ -7,7 +7,7 @@ class InvariantValidation
     self.already_has_method = false
   end
 
-  # Este no hace nada
+  # Este agrega la validacion segun si corresponde o no
   def for_method(destination_method)
     validation = self
     self.already_has_method = true
@@ -35,6 +35,10 @@ class InvariantValidation
     unless is_fulfilled.nil? || is_fulfilled
       raise ContractViolation, self.type
     end
+  end
+
+  def validate_over(instance, method_name, method_result = nil)
+    instance.instance_exec(method_name, method_result, &self.condition)
   end
 
   # Aca va la logica para ejecutar y que si no se cumple, rompa

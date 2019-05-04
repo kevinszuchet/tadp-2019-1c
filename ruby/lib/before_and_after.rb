@@ -36,19 +36,17 @@ class Module
         # TODO agregar este comportamiento al new, para validar cuando se construye
         self.define_method(method_name) { |*args|
           self.class.before_validations.map { |validation|
-            validation.with_parameters(original_method.parameters, args) }
-
-          self.class.before_validations.each { |validation|
-            instance_exec(method_name, &validation.condition)
+            validation.with_parameters(original_method.parameters, args)
+          }.each { |validation|
+            validation.validate_over(self, method_name)
           }
 
           ret = original_method.bind(self).call(*args)
 
           self.class.after_validations.map { |validation|
-            validation.with_parameters(original_method.parameters, args) }
-
-          self.class.after_validations.each { |validation|
-            self.instance_exec(method_name, ret, &validation.condition)
+            validation.with_parameters(original_method.parameters, args)
+          }.each { |validation|
+            validation.validate_over(self, method_name, ret)
           }
 
           ret
