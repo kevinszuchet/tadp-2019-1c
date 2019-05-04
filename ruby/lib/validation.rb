@@ -40,12 +40,6 @@ class InvariantValidation
   def validate_over(instance, method_name, method_result = nil)
     instance.instance_exec(method_name, method_result, &self.condition)
   end
-
-  # Aca va la logica para ejecutar y que si no se cumple, rompa
-  # Ademas, esto nos permite usarlo de forma mucho mas transparente en el method_added
-  # def validate
-  #   self.condition.call
-  # end
 end
 
 class PrePostValidation < InvariantValidation
@@ -72,15 +66,6 @@ class PrePostValidation < InvariantValidation
     }
     self
   end
-
-  # def validate(method, method_result)
-  #   instance_exec(method, method_result, self.condition)
-  # end
-
-  # def build
-  #   self.condition
-  # end
-
 end
 
 # class Module
