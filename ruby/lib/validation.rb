@@ -13,11 +13,6 @@ class ValidationBuilder
     self
   end
 
-  def with_result_parameter
-    self.has_result_parameter = true
-    self
-  end
-
   def for_particular_method
     self.is_for_particular_method = true
     self

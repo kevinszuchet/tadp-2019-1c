@@ -162,7 +162,7 @@ class Module
   end
 
   def post(&condition)
-    cond_with_exception = ValidationBuilder.new(&condition).for_particular_method.with_scoped_parameters.with_result_parameter
+    cond_with_exception = ValidationBuilder.new(&condition).for_particular_method.with_scoped_parameters
 
     # self.post_action = cond_with_exception
     before_and_after_each_call(ValidationBuilder.new(&{}), cond_with_exception)
