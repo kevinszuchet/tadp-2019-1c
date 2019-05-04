@@ -5,14 +5,20 @@ require_relative 'validation'
 class Module
   attr_accessor :before_validations, :after_validations
 
-  def add_before_validation(validation)
+  def befores
     self.before_validations ||= []
-    self.before_validations.push(validation)
+  end
+
+  def afters
+    self.after_validations ||= []
+  end
+
+  def add_before_validation(validation)
+    befores.push(validation)
   end
 
   def add_after_validation(validation)
-    self.after_validations ||= []
-    self.after_validations.push(validation)
+    afters.push(validation)
   end
 
   def define_method_added
@@ -27,15 +33,15 @@ class Module
         original_method = self.instance_method(method_name)
 
         # TODO revisar el filter
-        self.before_validations.filter { |validation| !validation.already_has_method }
+        self.befores.filter { |validation| !validation.already_has_method }
             .map {|validation| validation.for_method(method_name) }
 
-        self.after_validations.filter { |validation| !validation.already_has_method }
+        self.afters.filter { |validation| !validation.already_has_method }
             .map {|validation| validation.for_method(method_name) }
 
         # TODO agregar este comportamiento al new, para validar cuando se construye
         self.define_method(method_name) { |*args|
-          self.class.before_validations.map { |validation|
+          self.class.befores.map { |validation|
             validation.with_parameters(original_method.parameters, args)
           }.each { |validation|
             validation.validate_over(self, method_name)
@@ -43,7 +49,7 @@ class Module
 
           ret = original_method.bind(self).call(*args)
 
-          self.class.after_validations.map { |validation|
+          self.class.afters.map { |validation|
             validation.with_parameters(original_method.parameters, args)
           }.each { |validation|
             validation.validate_over(self, method_name, ret)
