@@ -1,50 +1,82 @@
-class ValidationBuilder
-  attr_accessor :condition, :has_scoped_parameters, :has_result_parameter, :is_for_particular_method, :for_method
+class EveryMethodValidation
+  attr_accessor :condition, :already_has_method
 
   def initialize(&condition)
     self.condition = condition
-    self.has_scoped_parameters = false
-    self.has_result_parameter = false
-    self.is_for_particular_method = false
+    self.already_has_method = false
   end
 
-  def with_scoped_parameters
-    self.has_scoped_parameters = true
+  # Este no hace nada
+  def for_method(method_name)
+    validation = self
+    old_condition = self.condition
+    self.condition = proc { |method, method_result|
+        validation.validate(self, nil, old_condition)
+    }
     self
   end
 
-  def for_particular_method
-    self.is_for_particular_method = true
+  # Este tampoco hace nada
+  def with_parameters(parameters_names, parameters_values)
     self
   end
 
-  # def set_args
-  #   self
-  # end
-
-  def set_particular_method(method_name)
-    self.for_method = method_name
-    self
-  end
-
-  # TODO devuelve un proc que bindea la instancia (ya esta en self) a la condition original
-  def build(method_name, parameters)
-    validation_condition = self.condition
-    for_particular_method = self.is_for_particular_method
-    for_method = self.for_method
-
-    # pp method_name,  for_particular_method, for_method
-
-    # TODO agregar el nombre a ContractViolation!
-    proc  do |result|
-      if (for_particular_method && for_method == method_name) || !for_particular_method
-          is_fulfilled = self.instance_exec(result, &validation_condition)
-          unless is_fulfilled.nil? || is_fulfilled
-            raise ContractViolation, 'TODO'
-          end
-      end
+  def validate(instance, method_result, condition)
+    is_fulfilled = instance.instance_exec(method_result, &condition)
+    unless is_fulfilled.nil? || is_fulfilled
+      raise ContractViolation, 'TODO'
     end
   end
+
+  # Aca va la logica para ejecutar y que si no se cumple, rompa
+  # Ademas, esto nos permite usarlo de forma mucho mas transparente en el method_added
+  # def validate
+  #   self.condition.call
+  # end
+end
+
+class ParticularMethodValidation < EveryMethodValidation
+  # Este agrega el if para ver si se tiene que ejecutar o no
+  def for_method(destination_method)
+    validation = self
+    self.already_has_method = true
+    old_condition = self.condition
+    self.condition = proc { |method, method_result|
+      if method == destination_method
+        validation.validate(self, method_result, old_condition)
+      end
+    }
+    self
+  end
+
+  # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar y despues sacarlos
+  def with_parameters(parameters_names, parameters_values)
+    old_condition = self.condition
+    self.condition = proc { |method, method_result|
+      parameters_names.each_with_index do |paramArray, index|
+        self.define_singleton_method(paramArray[1]) {
+          parameters_values[index]
+        }
+      end
+
+      # TODO se estan agregando y sacando metodos al pedo, cuando puede ser que la validacion ni se tenga que hacer (no es para X metodo)
+      self.instance_exec(method, method_result, &old_condition)
+
+      parameters_names.each do |paramArray|
+        self.singleton_class.remove_method(paramArray[1])
+      end
+    }
+    self
+  end
+
+  # def validate(method, method_result)
+  #   instance_exec(method, method_result, self.condition)
+  # end
+
+  # def build
+  #   self.condition
+  # end
+
 end
 
 # class Module

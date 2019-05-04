@@ -1,7 +1,5 @@
-require 'require_all'
-require_rel 'test_classes'
-
 require_relative './spec_helpers/violation_checker'
+require_relative './test_classes/class_with_pre_post_conditions'
 
 describe 'Pre and post' do
   include ViolationChecker
@@ -40,7 +38,7 @@ describe 'Pre and post' do
     expect_fulfillment {an_instance.method_with_empty_post}
   end
 
-  it 'should return the parameter if the method does that and the pre condition is fulfilled' do
+  it 'should return the parameter if the method does that and the pre condition is fulfilled, and the instance should not have the parameter accessor' do
     expect(an_instance.method_with_arg("hello")).to eq "hello"
     expect(an_instance.respond_to?(:an_arg)).to eq false
   end
