@@ -65,21 +65,21 @@ class Module
   end
 
   def invariant(&condition)
-    cond_with_exception = EveryMethodValidation.new(&condition)
+    cond_with_exception = InvariantValidation.new(&condition)
 
-    before_and_after_each_call(EveryMethodValidation.new(&{}), cond_with_exception)
+    before_and_after_each_call(InvariantValidation.new(&{}), cond_with_exception)
   end
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    cond_with_exception = ParticularMethodValidation.new(&condition)
+    cond_with_exception = PrePostValidation.new(&condition)
 
-    before_and_after_each_call(cond_with_exception, ParticularMethodValidation.new(&{}))
+    before_and_after_each_call(cond_with_exception, PrePostValidation.new(&{}))
   end
 
   def post(&condition)
-    cond_with_exception = ParticularMethodValidation.new(&condition)
+    cond_with_exception = PrePostValidation.new(&condition)
 
-    before_and_after_each_call(ParticularMethodValidation.new(&{}), cond_with_exception)
+    before_and_after_each_call(PrePostValidation.new(&{}), cond_with_exception)
   end
 end

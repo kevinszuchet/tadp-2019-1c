@@ -1,4 +1,4 @@
-class EveryMethodValidation
+class InvariantValidation
   attr_accessor :condition, :already_has_method
 
   def initialize(&condition)
@@ -37,7 +37,7 @@ class EveryMethodValidation
   # end
 end
 
-class ParticularMethodValidation < EveryMethodValidation
+class PrePostValidation < InvariantValidation
   # Este agrega el if para ver si se tiene que ejecutar o no
   def for_method(destination_method)
     validation = self
