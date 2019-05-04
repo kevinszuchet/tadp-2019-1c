@@ -8,17 +8,19 @@ class EveryMethodValidation
 
   # Este no hace nada
   def for_method(method_name)
-    validation = self
-    old_condition = self.condition
-    self.condition = proc { |method, method_result|
-        validation.validate(self, nil, old_condition)
-    }
-    self
   end
 
   # Este tampoco hace nada
   def with_parameters(parameters_names, parameters_values)
     self
+  end
+
+  def build
+    validation = self
+    old_condition = self.condition
+    proc { |method, method_result|
+      validation.validate(self, nil, old_condition)
+    }
   end
 
   def validate(instance, method_result, condition)
@@ -67,6 +69,10 @@ class ParticularMethodValidation < EveryMethodValidation
       end
     }
     self
+  end
+
+  def build
+    self.condition
   end
 
   # def validate(method, method_result)

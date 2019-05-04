@@ -8,7 +8,7 @@ class ClassWithPreAndPostConditions
     self.some_accessor = 10
   end
 
-  pre { pp 'about to exec pre some_method_with_pre'; 1 > 0 }
+  pre { pp 'about to exec pre some_method_with_pre'; 1 > 10 }
   def some_method_with_pre
   end
 

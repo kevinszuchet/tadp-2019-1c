@@ -34,13 +34,12 @@ class Module
             .map {|validation| validation.for_method(method_name) }
 
         # TODO agregar este comportamiento al new, para validar cuando se construye
-        # TODO este metodo tiene que tener en su contexto los procs de before y after (de alguna forma mejor que esta)
         self.define_method(method_name) { |*args|
           self.class.before_validations.map { |validation|
             validation.with_parameters(original_method.parameters, args) }
 
           self.class.before_validations.each { |validation|
-            instance_exec(method_name, &validation.condition)
+            instance_exec(method_name, &validation.build)
           }
 
           ret = original_method.bind(self).call(*args)
@@ -49,7 +48,7 @@ class Module
             validation.with_parameters(original_method.parameters, args) }
 
           self.class.after_validations.each { |validation|
-            self.instance_exec(method_name, ret, &validation.condition)
+            self.instance_exec(method_name, ret, &validation.build)
           }
 
           ret
