@@ -15,7 +15,3 @@ class ClassWithInvariantAndMixines
 
   end
 end
-
-module AMixin
-
-end

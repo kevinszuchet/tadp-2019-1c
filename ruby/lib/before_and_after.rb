@@ -27,9 +27,11 @@ class Module
       mixin_clone = self.clone
 
       unless mod.included_mixin
+        mixin_clone.define_method_added
         mixin_clone.define_method(:mixin_method) do |*args|
           super(*args)
         end
+
 
         mod.included_mixin = true
         mod.send(:include, mixin_clone)
@@ -55,7 +57,6 @@ class Module
         self.afters.filter { |validation| !validation.already_has_method }
             .map {|validation| validation.for_method(method_name) }
 
-        # TODO agregar este comportamiento al new, para validar cuando se construye
         self.define_method(method_name) { |*args|
           self.class.befores.map { |validation|
             validation.with_parameters(original_method.parameters, args)
