@@ -50,4 +50,10 @@ class ClassWithPreAndPostConditions
   def method_with_arg(an_arg)
     an_arg
   end
+
+  pre { 1 < 0 }
+  post { |result| result == 1 }
+  def method_with_pre_violation
+    1
+  end
 end

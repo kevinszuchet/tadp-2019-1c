@@ -43,6 +43,10 @@ describe 'Pre and post' do
     expect(an_instance.respond_to?(:an_arg)).to eq false
   end
 
+  it 'should explode if the pre validation is violated and the post doesnt' do
+    expect_violation {an_instance.method_with_pre_violation}
+  end
+
   it 'if one method is defined twice in the class, it should return as the second when called' do
     class ClassWithPreAndPostConditions
       def method_with_post_ok
