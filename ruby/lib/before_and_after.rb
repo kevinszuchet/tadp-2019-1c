@@ -33,7 +33,7 @@ class Module
         end
 
         mod.included_mixin = true
-        mod.send(:include, mixin_clone.to_s)
+        mod.send(:include, mixin_clone)
 
         # validated_mixin = Object.const_set(self.to_s, Module.new)
       end

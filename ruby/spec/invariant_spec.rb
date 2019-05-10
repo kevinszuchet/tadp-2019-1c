@@ -1,6 +1,5 @@
 require 'require_all'
-# require_rel 'test_classes'
-require_relative './test_classes/class_with_invariant_mixines'
+require_rel 'test_classes'
 
 require_relative './spec_helpers/violation_checker'
 
@@ -29,6 +28,10 @@ describe 'Invariant' do
 
   it 'should return the method result if the invariant is fulfilled' do
     expect(ClassWithNoInvariantViolation.new.some_method_with_return).to eq 10
+  end
+
+  it 'should validate the invariants in the instantiation of the class' do
+    expect_violation {ClassWithInvariantAccessor.new}
   end
 
   it 'should validate the invariant if the method is in a mixin' do
