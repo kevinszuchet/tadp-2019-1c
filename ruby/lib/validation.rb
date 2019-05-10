@@ -67,27 +67,3 @@ class PrePostValidation < InvariantValidation
     self
   end
 end
-
-# class Module
-#   def fulfillment_validation(contract_type)
-#     proc do |is_fulfilled|
-#       unless is_fulfilled.nil? || is_fulfilled
-#         raise ContractViolation, contract_type
-#       end
-#     end
-#   end
-#
-#   def fulfillment_validation_without_parameters(contract_type, &condition)
-#     condition_with_validation = fulfillment_validation(contract_type)
-#     proc {
-#       condition_with_validation.call(self.instance_eval(&condition))
-#     }
-#   end
-#
-#   def fulfillment_validation_with_parameters(contract_type, &condition)
-#     condition_with_validation = fulfillment_validation(contract_type)
-#     proc { |result|
-#       condition_with_validation.call(self.instance_exec(result, &condition))
-#     }
-#   end
-# end
