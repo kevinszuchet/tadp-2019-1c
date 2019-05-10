@@ -21,20 +21,18 @@ class Module
     afters.push(validation)
   end
 
-  def included(mod)
-    unless mod.afters.empty?
-      puts self, 'is being included in', mod
+  def included(class_including_me)
+    unless class_including_me.afters.empty?
       mixin_clone = self.clone
 
-      unless mod.included_mixin
+      unless class_including_me.included_mixin
         mixin_clone.define_method_added
         mixin_clone.define_method(:mixin_method) do |*args|
           super(*args)
         end
 
-
-        mod.included_mixin = true
-        mod.send(:include, mixin_clone)
+        class_including_me.included_mixin = true
+        class_including_me.send(:include, mixin_clone)
       end
     end
   end

@@ -6,10 +6,17 @@ module AMixin
   end
 end
 
-class ClassWithInvariantViolationAndMixines
+module AnotherMixin
+  def mixin_method
+    "im another mixin"
+  end
+end
+
+class ClassWithInvariantAndSeveralMixins
   invariant { pp 'about to exec invariant'; 1 < 0 }
 
   include AMixin
+  include AnotherMixin
 
   def some_method
 

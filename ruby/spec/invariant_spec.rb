@@ -35,11 +35,20 @@ describe 'Invariant' do
   end
 
   it 'should validate the invariant if the method is in a mixin' do
-    expect_violation {ClassWithInvariantAndMixines.new.mixin_method}
+    expect_violation {ClassWithInvariantViolationAndMixines.new.mixin_method}
+  end
+
+  it 'should validate the invariant if the method is in a mixin, and there are several mixins' do
+    expect_violation {ClassWithInvariantAndSeveralMixins.new.mixin_method}
   end
 
   it 'should return as the mixin method if there is no invariant violation' do
-    classWithMixinInstance = ClassWithInvariantAndMixinesOk.new
-    expect(classWithMixinInstance.mixin_method).to eq "im a mixin"
+    class_with_mixin_instance = ClassWithInvariantFulfilledAndMixines.new
+    expect(class_with_mixin_instance.mixin_method).to eq "im a mixin"
   end
+
+  # it 'should return as the mixin method if there is no invariant violation, and there are several mixins' do
+  #   classWithMixinInstance = ClassWithInvariantAndMixinesOk.new
+  #   expect(classWithMixinInstance.mixin_method).to eq "im a mixin"
+  # end
 end

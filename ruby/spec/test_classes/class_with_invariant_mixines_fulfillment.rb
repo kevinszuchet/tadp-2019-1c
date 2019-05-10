@@ -6,7 +6,7 @@ module AMixin
   end
 end
 
-class ClassWithInvariantAndMixinesOk
+class ClassWithInvariantFulfilledAndMixines
   invariant { pp 'about to exec invariant'; 1 > 0 }
 
   include AMixin
