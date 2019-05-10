@@ -28,7 +28,7 @@ class Module
       mixin_clone = self.clone
 
       unless mod.included_mixin
-        mixin_clone.define_singleton_method(:mixin_method_t) do
+        mixin_clone.define_method(:mixin_method) do
           puts 'inside the new mixin'
         end
 

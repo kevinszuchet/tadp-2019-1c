@@ -35,7 +35,6 @@ describe 'Invariant' do
   end
 
   it 'should validate the invariant if the method is in a mixin' do
-    pp ClassWithInvariantAndMixines.ancestors
-    expect_violation {ClassWithInvariantAndMixines.new.mixin_method_t}
+    expect_violation {ClassWithInvariantAndMixines.new.mixin_method}
   end
 end
