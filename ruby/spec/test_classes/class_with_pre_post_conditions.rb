@@ -8,15 +8,15 @@ class ClassWithPreAndPostConditions
     self.some_accessor = 10
   end
 
-  pre { 1 > 0 }
+  pre { pp 'about to exec pre some_method_with_pre'; 1 > 0 }
   def some_method_with_pre
   end
 
-  pre { some_accessor > 0 }
+  pre { pp 'about to exec pre method_with_accessor_pre'; some_accessor > 0 }
   def method_with_accessor_pre
   end
 
-  pre { some_accessor < 0 }
+  pre { pp 'about to exec pre method_with_accessor_pre_violation'; some_accessor < 0 }
   def method_with_accessor_pre_violation
   end
 
@@ -25,23 +25,29 @@ class ClassWithPreAndPostConditions
     8
   end
 
-  post { 1 > 0 }
+  post { pp 'about to exec post method_with_post_ok'; 1 > 0 }
   def method_with_post_ok
     11
   end
 
-  pre { some_accessor == 10 }
-  post { some_accessor == 11 }
+  pre { pp 'executing pre'; some_accessor == 10 }
+  post { pp 'executing post'; some_accessor == 11 }
   def method_with_pre_and_post_ok
     self.some_accessor+= 1
   end
 
-  post { |result| result == 11 }
-  def method_with_pre_method_result
+  post { |result| pp result; result == 11 }
+  def method_with_post_method_result
     11
   end
 
   post {}
   def method_with_empty_post
+  end
+
+  pre { pp 'an_arg is', an_arg; false != true && an_arg == "hello" }
+  post { |result| pp 'executing post'; result == an_arg }
+  def method_with_arg(an_arg)
+    an_arg
   end
 end

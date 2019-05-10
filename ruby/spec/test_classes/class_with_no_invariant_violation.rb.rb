@@ -1,8 +1,8 @@
 require_relative '../../lib/before_and_after'
 
 class ClassWithNoInvariantViolation
-  invariant { 1 > 0 }
-  invariant { }
+  invariant { pp 'about to exec first invariant'; 1 > 0 }
+  invariant { pp 'about to exec second invariant'; }
 
   def some_method
 
