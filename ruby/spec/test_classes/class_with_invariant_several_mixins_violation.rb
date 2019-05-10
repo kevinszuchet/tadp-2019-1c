@@ -12,7 +12,7 @@ module AnotherMixin
   end
 end
 
-class ClassWithInvariantAndSeveralMixins
+class ClassWithInvariantAndSeveralMixinsViolation
   invariant { pp 'about to exec invariant'; 1 < 0 }
 
   include AMixin

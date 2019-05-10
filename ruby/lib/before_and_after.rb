@@ -22,9 +22,11 @@ class Module
   end
 
   def included(class_including_me)
+    # Este unless es para que solo redefina los mixins de clases que tienen un after (al menos un invariant)
     unless class_including_me.afters.empty?
       mixin_clone = self.clone
 
+      # Este unless es para que no entrar en un loop: aca adentro estamos incluyendo un mixin (send :include)!
       unless class_including_me.included_mixin
         mixin_clone.define_method_added
         mixin_clone.define_method(:mixin_method) do |*args|
@@ -33,6 +35,7 @@ class Module
 
         class_including_me.included_mixin = true
         class_including_me.send(:include, mixin_clone)
+        class_including_me.included_mixin = false
       end
     end
   end

@@ -1,6 +1,8 @@
 require 'require_all'
 require_rel 'test_classes'
 
+# require_relative './test_classes/class_with_invariant_several_mixins'
+
 require_relative './spec_helpers/violation_checker'
 
 describe 'Invariant' do
@@ -38,8 +40,8 @@ describe 'Invariant' do
     expect_violation {ClassWithInvariantViolationAndMixines.new.mixin_method}
   end
 
-  it 'should validate the invariant if the method is in a mixin, and there are several mixins' do
-    expect_violation {ClassWithInvariantAndSeveralMixins.new.mixin_method}
+  it 'should validate the invariant if the method is in the last mixin, and there are several mixins' do
+    expect_violation {ClassWithInvariantAndSeveralMixinsViolation.new.mixin_method}
   end
 
   it 'should return as the mixin method if there is no invariant violation' do
@@ -47,8 +49,8 @@ describe 'Invariant' do
     expect(class_with_mixin_instance.mixin_method).to eq "im a mixin"
   end
 
-  # it 'should return as the mixin method if there is no invariant violation, and there are several mixins' do
-  #   classWithMixinInstance = ClassWithInvariantAndMixinesOk.new
-  #   expect(classWithMixinInstance.mixin_method).to eq "im a mixin"
-  # end
+  it 'should return as the second mixin method if there is no invariant violation, and there are several mixins' do
+    class_with_several_mixins_instance = ClassWithInvariantAndSeveralMixinsFulfillment.new
+    expect(class_with_several_mixins_instance.mixin_method).to eq "im another mixin"
+  end
 end
