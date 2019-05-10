@@ -55,11 +55,12 @@ class Module
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
-      @updated_methods ||= []
 
-      unless @updated_methods && @updated_methods.include?(method_name)
-        @updated_methods.push(method_name)
+      @was_redefined ||= false
 
+      unless @was_redefined
+
+        @was_redefined = true
         original_method = self.instance_method(method_name)
 
         self.set_validations_for_defined_method(self.befores, method_name)
@@ -82,6 +83,8 @@ class Module
 
           ret
         }
+
+        @was_redefined = false
       end
     end
   end
