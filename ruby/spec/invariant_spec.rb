@@ -1,9 +1,6 @@
 require 'require_all'
 require_rel 'test_classes'
 
-# require_relative './test_classes/class_without_invariants'
-# require_relative './test_classes/class_with_invariant_violation'
-
 require_relative './spec_helpers/violation_checker'
 
 describe 'Invariant' do
@@ -31,15 +28,5 @@ describe 'Invariant' do
 
   it 'should return the method result if the invariant is fulfilled' do
     expect(ClassWithNoInvariantViolation.new.some_method_with_return).to eq 10
-  end
-
-  it 'if a class inherits from another that has invariants, they should be checked' do
-    expect_violation {ClassWithInheritance.new.a_method}
-  end
-end
-
-class ClassWithInheritance < ClassWithPreAndPostConditions
-  def a_method
-    pp 'im a method'
   end
 end

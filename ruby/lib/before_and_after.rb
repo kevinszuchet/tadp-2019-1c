@@ -22,7 +22,7 @@ class Module
   end
 
   def define_method_added
-    # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo sin este if?
+    # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
       @updated_methods ||= []
@@ -32,7 +32,7 @@ class Module
 
         original_method = self.instance_method(method_name)
 
-        # TODO revisar el filter
+        # TODO revisar el filter: alguna forma mejor de hacerlo?
         self.befores.filter { |validation| !validation.already_has_method }
             .map {|validation| validation.for_method(method_name) }
 
