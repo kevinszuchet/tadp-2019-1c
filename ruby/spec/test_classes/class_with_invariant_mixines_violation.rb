@@ -2,7 +2,7 @@ require_relative '../../lib/before_and_after'
 
 module AMixin
   def mixin_method
-    pp "im a mixin"
+    "im a mixin"
   end
 end
 
