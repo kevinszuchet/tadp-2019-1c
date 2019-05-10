@@ -21,6 +21,8 @@ class Module
     afters.push(validation)
   end
 
+  # El included nos avisa cuando un mixin es incluido en la clase (que se pasa por parametro)
+  # Entonces, lo que hacemos es agregarle otro mixin a la clase, con los mismos metodos que el mixin original pero tuneados con los invariants de la clase
   def included(class_including_me)
     # Este unless es para que solo redefina los mixins de clases que tienen un after (al menos un invariant)
     unless class_including_me.afters.empty?
@@ -33,11 +35,18 @@ class Module
           super(*args)
         end
 
+        # Esto es lo que se usa en el if para evitar el loop
         class_including_me.included_mixin = true
         class_including_me.send(:include, mixin_clone)
         class_including_me.included_mixin = false
       end
     end
+  end
+
+  def set_validations_for_defined_method(validations, method_name)
+    # TODO revisar el filter: alguna forma mejor de hacerlo?
+    validations.filter { |validation| !validation.already_has_method }
+        .map {|validation| validation.for_method(method_name) }
   end
 
   def define_method_added
@@ -51,12 +60,8 @@ class Module
 
         original_method = self.instance_method(method_name)
 
-        # TODO revisar el filter: alguna forma mejor de hacerlo?
-        self.befores.filter { |validation| !validation.already_has_method }
-            .map {|validation| validation.for_method(method_name) }
-
-        self.afters.filter { |validation| !validation.already_has_method }
-            .map {|validation| validation.for_method(method_name) }
+        self.set_validations_for_defined_method(self.befores, method_name)
+        self.set_validations_for_defined_method(self.afters, method_name)
 
         self.define_method(method_name) { |*args|
           self.class.befores.map { |validation|
