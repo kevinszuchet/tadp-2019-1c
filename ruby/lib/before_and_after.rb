@@ -3,7 +3,7 @@ require_relative 'validation'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
-  attr_accessor :before_validations, :after_validations, :included_mixin
+  attr_accessor :before_validations, :after_validations, :included_mixin, :was_redefined
 
   def befores
     self.before_validations ||= []
@@ -56,11 +56,11 @@ class Module
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
 
-      @was_redefined ||= false
+      self.was_redefined ||= false
 
-      unless @was_redefined
+      unless self.was_redefined
 
-        @was_redefined = true
+        self.was_redefined = true
         original_method = self.instance_method(method_name)
 
         self.set_validations_for_defined_method(self.befores, method_name)
@@ -84,7 +84,7 @@ class Module
           ret
         }
 
-        @was_redefined = false
+        self.was_redefined = false
       end
     end
   end
