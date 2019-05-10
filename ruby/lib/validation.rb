@@ -1,5 +1,5 @@
 class InvariantValidation
-  attr_accessor :condition, :already_has_method, :type
+  attr_accessor :condition, :already_has_method, :type, :destination_method, :parameters
 
   def initialize(type = nil, &condition)
     self.condition = condition
@@ -7,25 +7,23 @@ class InvariantValidation
     self.already_has_method = false
   end
 
+  def parameters_accessor
+    self.parameters ||= Hash.new
+  end
+
   # Este agrega la validacion segun si corresponde o no
   def for_method(destination_method)
-    validation = self
+    self.destination_method = destination_method
     self.already_has_method = true
-    old_condition = self.condition
-    self.condition = proc { |method, method_result|
-      if validation.should_validate?(destination_method, method)
-        validation.validate(self, method_result, old_condition)
-      end
-    }
     self
   end
 
   # El invariant siempre tiene que hacer la validacion
-  def should_validate?(destination_method, actual_method)
+  def should_validate?(actual_method)
     true
   end
 
-  # Este tampoco hace nada
+  # Este no setea ningun parametro, porque los invariants no los usan
   def with_parameters(parameters_names, parameters_values)
     self
   end
@@ -37,33 +35,47 @@ class InvariantValidation
     end
   end
 
+  # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar (validar) y despues sacarlos
+  # Y en el caso del invariant, como no hay niguno, no agrega nada :)
+  def add_parameters_methods_to(instance)
+    parameters_accessor.each do |parameter_name, parameter_value|
+      instance.define_singleton_method(parameter_name) {
+        parameter_value
+      }
+    end
+  end
+
+  def remove_parameters_methods_to(instance)
+    parameters_accessor.each do |parameter_name, parameter_value|
+      instance.singleton_class.remove_method(parameter_name)
+    end
+  end
+
   def validate_over(instance, method_name, method_result = nil)
-    instance.instance_exec(method_name, method_result, &self.condition)
+    # Tenemos que guardar la validation porque el codigo en el proc se ejecuta en el contexto de la instancia (self ahi adentro no va a ser la validation!)
+    validation = self
+    proc_with_validation = proc { |method, method_result|
+        if validation.should_validate?(method)
+          validation.add_parameters_methods_to(self)
+          validation.validate(self, method_result, validation.condition)
+          validation.remove_parameters_methods_to(self)
+        end
+      }
+
+    instance.instance_exec(method_name, method_result, &proc_with_validation)
   end
 end
 
 class PrePostValidation < InvariantValidation
-  def should_validate?(destination_method, actual_method)
-    actual_method == destination_method
+  def should_validate?(actual_method)
+    actual_method == self.destination_method
   end
 
-  # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar (validar) y despues sacarlos
   def with_parameters(parameters_names, parameters_values)
-    old_condition = self.condition
-    self.condition = proc { |method, method_result|
-      parameters_names.each_with_index do |paramArray, index|
-        self.define_singleton_method(paramArray[1]) {
-          parameters_values[index]
-        }
-      end
+    parameters_names.each_with_index do |paramArray, index|
+      self.parameters_accessor[paramArray[1]] = parameters_values[index]
+    end
 
-      # TODO se estan agregando y sacando metodos al pedo, cuando puede ser que la validacion ni se tenga que hacer (no es para X metodo)
-      self.instance_exec(method, method_result, &old_condition)
-
-      parameters_names.each do |paramArray|
-        self.singleton_class.remove_method(paramArray[1])
-      end
-    }
     self
   end
 end
