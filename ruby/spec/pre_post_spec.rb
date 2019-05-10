@@ -53,7 +53,7 @@ describe 'Pre and post' do
     expect(ClassWithPreAndPostConditions.new.method_with_post_ok).to eq 'redefined method'
   end
 
-  it 'if one method is defined twice in the class with a validation, it should return as the second when called' do
+  it 'if one method is defined twice in the class with a validation, it should explode if the validation is not fulfilled' do
     class ClassWithPreAndPostConditions
       post { pp 'executing post'; 1 < 0 }
       def method_with_post_ok
