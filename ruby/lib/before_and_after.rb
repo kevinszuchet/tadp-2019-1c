@@ -3,7 +3,7 @@ require_relative 'validation'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
-  attr_accessor :before_validations, :after_validations
+  attr_accessor :before_validations, :after_validations, :included_mixin
 
   def befores
     self.before_validations ||= []
@@ -19,6 +19,25 @@ class Module
 
   def add_after_validation(validation)
     afters.push(validation)
+  end
+
+  def included(mod)
+    unless mod.afters.empty?
+      puts self, 'is being included in', mod
+      puts self.instance_methods
+      mixin_clone = self.clone
+
+      unless mod.included_mixin
+        mixin_clone.define_singleton_method(:mixin_method_t) do
+          puts 'inside the new mixin'
+        end
+
+        mod.included_mixin = true
+        mod.send(:include, mixin_clone.to_s)
+
+        # validated_mixin = Object.const_set(self.to_s, Module.new)
+      end
+    end
   end
 
   def define_method_added
