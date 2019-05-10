@@ -31,12 +31,14 @@ class Module
       # Este unless es para que no entrar en un loop: aca adentro estamos incluyendo un mixin (send :include)!
       unless class_including_me.included_mixin
         mixin_clone.define_method_added
+        # Como el mixin original va a seguir estando en la clase, este puede hacer super
         mixin_clone.define_method(:mixin_method) do |*args|
           super(*args)
         end
 
         # Esto es lo que se usa en el if para evitar el loop
         class_including_me.included_mixin = true
+        # Aca incluyo el mixin tuneado
         class_including_me.send(:include, mixin_clone)
         class_including_me.included_mixin = false
       end

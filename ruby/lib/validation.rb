@@ -13,7 +13,7 @@ class InvariantValidation
     self.already_has_method = true
     old_condition = self.condition
     self.condition = proc { |method, method_result|
-      if validation.should_validate(destination_method, method)
+      if validation.should_validate?(destination_method, method)
         validation.validate(self, method_result, old_condition)
       end
     }
@@ -21,7 +21,7 @@ class InvariantValidation
   end
 
   # El invariant siempre tiene que hacer la validacion
-  def should_validate(destination_method, actual_method)
+  def should_validate?(destination_method, actual_method)
     true
   end
 
@@ -43,11 +43,11 @@ class InvariantValidation
 end
 
 class PrePostValidation < InvariantValidation
-  def should_validate(destination_method, actual_method)
+  def should_validate?(destination_method, actual_method)
     actual_method == destination_method
   end
 
-  # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar y despues sacarlos
+  # Este agrega el comportamiento de agregar los metodos para los parametros a la singleton de la instancia (si no existen aun), ejecutar (validar) y despues sacarlos
   def with_parameters(parameters_names, parameters_values)
     old_condition = self.condition
     self.condition = proc { |method, method_result|
