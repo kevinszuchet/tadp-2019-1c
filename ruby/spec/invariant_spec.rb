@@ -51,4 +51,9 @@ describe 'Invariant' do
     class_with_several_mixins_instance = ClassWithInvariantAndSeveralMixinsFulfillment.new
     expect(class_with_several_mixins_instance.mixin_method).to eq "im another mixin"
   end
+
+  it 'should not define a method permanently for a parameter' do
+    class_with_invariant_and_method_parameter = ClassWithInvariantMethodParameter.new
+    expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
+  end
 end
