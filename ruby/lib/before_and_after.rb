@@ -24,18 +24,15 @@ class Module
   def included(mod)
     unless mod.afters.empty?
       puts self, 'is being included in', mod
-      puts self.instance_methods
       mixin_clone = self.clone
 
       unless mod.included_mixin
-        mixin_clone.define_method(:mixin_method) do
-          puts 'inside the new mixin'
+        mixin_clone.define_method(:mixin_method) do |*args|
+          super(*args)
         end
 
         mod.included_mixin = true
         mod.send(:include, mixin_clone)
-
-        # validated_mixin = Object.const_set(self.to_s, Module.new)
       end
     end
   end
