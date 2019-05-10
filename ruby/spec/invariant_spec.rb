@@ -1,8 +1,6 @@
 require 'require_all'
 require_rel 'test_classes'
 
-# require_relative './test_classes/class_with_invariant_several_mixins'
-
 require_relative './spec_helpers/violation_checker'
 
 describe 'Invariant' do
