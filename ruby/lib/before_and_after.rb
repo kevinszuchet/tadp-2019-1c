@@ -2,6 +2,14 @@ require_relative 'exceptions'
 require_relative 'validation'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
+class Object
+  def initialize
+    super
+    pp "initialize nuevo"
+    self.class.set_parameters_and_validate(self, self.class.afters, [], nil, :initialize, self)
+  end
+end
+
 class Module
   attr_accessor :before_validations, :after_validations, :included_mixin, :was_redefined
 
