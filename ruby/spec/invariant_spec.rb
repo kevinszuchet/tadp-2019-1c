@@ -60,5 +60,4 @@ describe 'Invariant' do
   it 'should execute as the mixin method if it recieves a block' do
     expect(ClassWithInvariantFulfilledAndMixinesBlockMethod.new.mixin_method { 10 }).to eq 10
   end
-
 end
