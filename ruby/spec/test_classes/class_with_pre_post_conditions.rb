@@ -56,4 +56,10 @@ class ClassWithPreAndPostConditions
   def method_with_pre_violation
     1
   end
+
+  pre { some_accessor == 10 }
+  post { some_accessor == 11 }
+  def method_with_block(&block)
+    block.call
+  end
 end

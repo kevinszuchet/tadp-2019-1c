@@ -76,10 +76,10 @@ class Module
         self.set_validations_for_defined_method(self.befores, method_name)
         self.set_validations_for_defined_method(self.afters, method_name)
 
-        self.define_method(method_name) { |*args|
+        self.define_method(method_name) { |*args, &block|
           self.class.set_parameters_and_validate(self, self.class.befores, original_method.parameters, args, method_name)
 
-          ret = original_method.bind(self).call(*args)
+          ret = original_method.bind(self).call(*args, &block)
 
           self.class.set_parameters_and_validate(self, self.class.afters, original_method.parameters, args, method_name, ret)
 
