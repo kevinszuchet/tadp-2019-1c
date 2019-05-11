@@ -51,6 +51,14 @@ class Module
         .map {|validation| validation.for_method(method_name) }
   end
 
+  def set_parameters_and_validate(instance, validations, parameters, args, method_name, method_result = nil)
+    validations.map { |validation|
+      validation.with_parameters(parameters, args)
+    }.each { |validation|
+      validation.validate_over(instance, method_name, method_result)
+    }
+  end
+
   def define_method_added
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
     # if !self.methods.include?(:method_added)
@@ -67,19 +75,11 @@ class Module
         self.set_validations_for_defined_method(self.afters, method_name)
 
         self.define_method(method_name) { |*args|
-          self.class.befores.map { |validation|
-            validation.with_parameters(original_method.parameters, args)
-          }.each { |validation|
-            validation.validate_over(self, method_name)
-          }
+          self.class.set_parameters_and_validate(self, self.class.befores, original_method.parameters, args, method_name)
 
           ret = original_method.bind(self).call(*args)
 
-          self.class.afters.map { |validation|
-            validation.with_parameters(original_method.parameters, args)
-          }.each { |validation|
-            validation.validate_over(self, method_name, ret)
-          }
+          self.class.set_parameters_and_validate(self, self.class.afters, original_method.parameters, args, method_name, ret)
 
           ret
         }
