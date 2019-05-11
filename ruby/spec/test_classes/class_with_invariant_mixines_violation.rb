@@ -1,7 +1,15 @@
 require_relative '../../lib/before_and_after'
 
-class ClassWithInvariantViolation
+module AMixin
+  def mixin_method
+    "im a mixin"
+  end
+end
+
+class ClassWithInvariantViolationAndMixines
   invariant { pp 'about to exec invariant'; 1 < 0 }
+
+  include AMixin
 
   def some_method
 

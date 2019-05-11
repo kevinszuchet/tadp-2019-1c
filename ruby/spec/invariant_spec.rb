@@ -29,4 +29,31 @@ describe 'Invariant' do
   it 'should return the method result if the invariant is fulfilled' do
     expect(ClassWithNoInvariantViolation.new.some_method_with_return).to eq 10
   end
+
+  it 'should validate the invariants in the instantiation of the class' do
+    expect_violation {ClassWithInvariantAccessor.new}
+  end
+
+  it 'should validate the invariant if the method is in a mixin' do
+    expect_violation {ClassWithInvariantViolationAndMixines.new.mixin_method}
+  end
+
+  it 'should validate the invariant if the method is in the last mixin, and there are several mixins' do
+    expect_violation {ClassWithInvariantAndSeveralMixinsViolation.new.mixin_method}
+  end
+
+  it 'should return as the mixin method if there is no invariant violation' do
+    class_with_mixin_instance = ClassWithInvariantFulfilledAndMixines.new
+    expect(class_with_mixin_instance.mixin_method).to eq "im a mixin"
+  end
+
+  it 'should return as the second mixin method if there is no invariant violation, and there are several mixins' do
+    class_with_several_mixins_instance = ClassWithInvariantAndSeveralMixinsFulfillment.new
+    expect(class_with_several_mixins_instance.mixin_method).to eq "im another mixin"
+  end
+
+  it 'should not define a method permanently for a parameter' do
+    class_with_invariant_and_method_parameter = ClassWithInvariantMethodParameter.new
+    expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
+  end
 end
