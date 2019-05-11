@@ -56,4 +56,9 @@ describe 'Invariant' do
     class_with_invariant_and_method_parameter = ClassWithInvariantMethodParameter.new
     expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
   end
+
+  it 'should execute as the mixin method if it recieves a block' do
+    expect(ClassWithInvariantFulfilledAndMixinesBlockMethod.new.mixin_method { 10 }).to eq 10
+  end
+
 end

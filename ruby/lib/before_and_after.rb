@@ -33,8 +33,8 @@ class Module
         mixin_clone.define_method_added
         # Como el mixin original va a seguir estando en la clase, este puede hacer super en cada metodo
         self.instance_methods.each do |mixin_method|
-          mixin_clone.define_method(mixin_method) do |*args|
-            super(*args)
+          mixin_clone.define_method(mixin_method) do |*args, &block|
+            super(*args, &block)
           end
         end
 
