@@ -56,7 +56,6 @@ describe 'Invariant' do
     class_with_invariant_and_method_parameter = ClassWithInvariantMethodParameter.new
     expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
   end
-
   it 'class with a false invariant, with attributes, with no initialize method should explode calling the new method' do
     expect_violation {ClassWithFalseInvariantThatHasAttr.new}
   end
@@ -68,6 +67,8 @@ describe 'Invariant' do
   it 'class with a false invariant, with initialize, should explode calling the new method' do
     expect_violation {ClassWithFalseInvariantWithInitialize.new}
   end
-
-
+  
+  it 'should execute as the mixin method if it recieves a block' do
+    expect(ClassWithInvariantFulfilledAndMixinesBlockMethod.new.mixin_method { 10 }).to eq 10
+  end
 end

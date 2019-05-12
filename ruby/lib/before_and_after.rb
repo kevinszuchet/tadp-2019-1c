@@ -31,9 +31,11 @@ class Module
       # Este unless es para que no entrar en un loop: aca adentro estamos incluyendo un mixin (send :include)!
       unless class_including_me.included_mixin
         mixin_clone.define_method_added
-        # Como el mixin original va a seguir estando en la clase, este puede hacer super
-        mixin_clone.define_method(:mixin_method) do |*args|
-          super(*args)
+        # Como el mixin original va a seguir estando en la clase, este puede hacer super en cada metodo
+        self.instance_methods.each do |mixin_method|
+          mixin_clone.define_method(mixin_method) do |*args, &block|
+            super(*args, &block)
+          end
         end
 
         # Esto es lo que se usa en el if para evitar el loop
@@ -74,10 +76,10 @@ class Module
         self.set_validations_for_defined_method(self.befores, method_name)
         self.set_validations_for_defined_method(self.afters, method_name)
 
-        self.define_method(method_name) { |*args|
+        self.define_method(method_name) { |*args, &block|
           self.class.set_parameters_and_validate(self, self.class.befores, original_method.parameters, args, method_name)
 
-          ret = original_method.bind(self).call(*args)
+          ret = original_method.bind(self).call(*args, &block)
 
           self.class.set_parameters_and_validate(self, self.class.afters, original_method.parameters, args, method_name, ret)
 
