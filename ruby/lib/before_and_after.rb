@@ -92,9 +92,7 @@ class Module
   end
 
   def define_initialize
-    self.define_method(:initialize) do |*args, &block|
-      pp 'instantiating class'
-      super(*args, &block)
+    self.define_method(:initialize) do
     end
   end
 
