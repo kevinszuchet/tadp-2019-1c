@@ -64,4 +64,10 @@ describe 'Invariant' do
   it 'class with an always false invariant should explode calling the new method' do
     expect_violation {ClassWithAlwaysFalseInvariant.new}
   end
+
+  it 'class with a false invariant, with initialize, should explode calling the new method' do
+    expect_violation {ClassWithFalseInvariantWithInitialize.new}
+  end
+
+
 end
