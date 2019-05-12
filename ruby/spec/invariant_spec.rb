@@ -57,21 +57,11 @@ describe 'Invariant' do
     expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
   end
 
-  it 'class with a false invariant and with no initialize method should explode calling the new method' do
-    class A
-      attr_accessor :x
-      def x
-        @x || 1
-      end
-      invariant { pp "Invariant" ;x > 2 }
-    end
-    expect_violation {A.new}
+  it 'class with a false invariant, with attributes, with no initialize method should explode calling the new method' do
+    expect_violation {ClassWithFalseInvariantThatHasAttr.new}
   end
 
-  it 'class with a false invariant should explode calling the new method' do
-    class A
-      invariant { pp "Invariant" ;1 > 2 }
-    end
-    expect_violation {A.new}
+  it 'class with an always false invariant should explode calling the new method' do
+    expect_violation {ClassWithAlwaysFalseInvariant.new}
   end
 end
