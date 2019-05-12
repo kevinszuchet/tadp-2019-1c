@@ -2,11 +2,11 @@ require_relative 'exceptions'
 require_relative 'validation'
 
 # TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
-class BasicObject
-  def initialize
-    self.class.set_parameters_and_validate(self, self.class.afters, [], nil, :initialize, self)
-  end
-end
+#class BasicObject
+#  def initialize
+#    self.class.set_parameters_and_validate(self, self.class.afters, [], nil, :initialize, self)
+#  end
+#end
 
 class Module
   attr_accessor :before_validations, :after_validations, :included_mixin, :was_redefined
@@ -95,6 +95,13 @@ class Module
     end
   end
 
+  def define_initialize
+    self.define_method(:initialize) do |*args, &block|
+      pp 'instantiating class'
+      super(*args, &block)
+    end
+  end
+
   def before_and_after_each_call(_before, _after)
     self.add_before_validation(_before)
     self.add_after_validation(_after)
@@ -106,6 +113,7 @@ class Module
     cond_with_exception = InvariantValidation.new('invariant', &condition)
 
     before_and_after_each_call(InvariantValidation.new(&{}), cond_with_exception)
+    define_initialize
   end
 
   # TODO rename condition_with_validation por validate fulfillment
