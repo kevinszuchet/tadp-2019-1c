@@ -39,48 +39,66 @@ class Module
     end
   end
 
+  def define_method_added
+    # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
+    # if !self.methods.include?(:method_added)
+    def self.method_added(method_name)
+      #No es necesario self.was_redefined ||= false
+      unless self.was_redefined
+        #Disable was_redefined para cortar la recursividad
+        self.was_redefined = true
+        #Get UnboundMethod
+        original_method = instance_method(method_name)
+        #Redefine method
+        redefine_method(original_method)
+        #Enable was_redefined para poder seguir redefiniendo metodos
+        self.was_redefined = false
+      end
+    end
+  end
+
+  def redefine_method(method)
+    #Bindeo los pre y post con el metodo
+    set_validations_for_defined_method(self.befores, method.name)
+    set_validations_for_defined_method(self.afters, method.name)
+    
+    self.define_method(method.name) { |*args, &block|
+      #Clono el objeto para no tener que reestablecer los metodos luego
+      self_clone = self.class.add_method_args_as_methods(self.clone, method, args)
+
+      #Execute befores
+      self_clone.class.validate(self_clone, self_clone.class.befores, method.name)
+
+      #Execute method in clone because it could have effect and get result
+      result = method.bind(self_clone).call(*args, &block)
+
+      #Execute afters
+      self_clone.class.validate(self_clone, self_clone.class.afters, method.name, result)
+
+      #Execute method and return result
+      method.bind(self).call(*args, &block)
+    }
+  end
+
   def set_validations_for_defined_method(validations, method_name)
     # TODO revisar el filter: alguna forma mejor de hacerlo?
     validations.select { |validation| !validation.already_has_method }
         .map {|validation| validation.for_method(method_name) }
   end
 
-  def set_parameters_and_validate(instance, validations, parameters, args, method_name, method_result = nil)
-    validations.map { |validation|
-      validation.with_parameters(parameters, args)
-    }.each { |validation|
-      validation.validate_over(instance, method_name, method_result)
-    }
+  def add_method_args_as_methods(object, method, args)
+    #Agrego los parametros del metodo como metodos al objeto
+    method.parameters.map { |arg| arg[1] }
+      .zip(args).each { |param|
+        object.define_singleton_method(param[0]) { param[1] }
+      }
+    #Retorno el objeto
+    return object
   end
 
-  def define_method_added
-    # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
-    # if !self.methods.include?(:method_added)
-    def self.method_added(method_name)
-
-      self.was_redefined ||= false
-
-      unless self.was_redefined
-
-        self.was_redefined = true
-        original_method = self.instance_method(method_name)
-
-        self.set_validations_for_defined_method(self.befores, method_name)
-        self.set_validations_for_defined_method(self.afters, method_name)
-
-        self.define_method(method_name) { |*args, &block|
-          self.class.set_parameters_and_validate(self, self.class.befores, original_method.parameters, args, method_name)
-
-          ret = original_method.bind(self).call(*args, &block)
-
-          self.class.set_parameters_and_validate(self, self.class.afters, original_method.parameters, args, method_name, ret)
-
-          ret
-        }
-
-        self.was_redefined = false
-      end
-    end
+  def validate(instance, validations, method_name, method_result = nil)
+    validations.select { |validation| validation.should_validate? method_name }
+      .each { |validation| validation.validate_over(instance, method_result) }
   end
 
   def define_initialize
@@ -95,19 +113,19 @@ class Module
   end
 
   def invariant(&condition)
-    afters.push(InvariantValidation.new('invariant', &condition))
+    afters.push(InvariantValidation.new(&condition))
     define_initialize
     define_method_added
   end
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    befores.push(PrePostValidation.new('pre', &condition))
+    befores.push(PrePostValidation.new(&condition))
     define_method_added
   end
 
   def post(&condition)
-    afters.push(PrePostValidation.new('post', &condition))
+    afters.push(PrePostValidation.new(&condition))
     define_method_added
   end
 end
