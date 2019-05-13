@@ -13,14 +13,6 @@ class Module
     self.after_validations ||= []
   end
 
-  def add_before_validation(validation)
-    befores.push(validation)
-  end
-
-  def add_after_validation(validation)
-    afters.push(validation)
-  end
-
   # El included nos avisa cuando un mixin es incluido en la clase (que se pasa por parametro)
   # Entonces, lo que hacemos es agregarle otro mixin a la clase, con los mismos metodos que el mixin original pero tuneados con los invariants de la clase
   def included(class_including_me)
@@ -49,7 +41,7 @@ class Module
 
   def set_validations_for_defined_method(validations, method_name)
     # TODO revisar el filter: alguna forma mejor de hacerlo?
-    validations.filter { |validation| !validation.already_has_method }
+    validations.select { |validation| !validation.already_has_method }
         .map {|validation| validation.for_method(method_name) }
   end
 
@@ -97,29 +89,25 @@ class Module
   end
 
   def before_and_after_each_call(_before, _after)
-    self.add_before_validation(_before)
-    self.add_after_validation(_after)
-
+    befores.push(BeforeAfterMethod.new(_before))
+    afters.push(BeforeAfterMethod.new(_after))
     define_method_added
   end
 
   def invariant(&condition)
-    cond_with_exception = InvariantValidation.new('invariant', &condition)
-
-    before_and_after_each_call(InvariantValidation.new(&{}), cond_with_exception)
+    afters.push(InvariantValidation.new('invariant', &condition))
     define_initialize
+    define_method_added
   end
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    cond_with_exception = PrePostValidation.new('pre', &condition)
-
-    before_and_after_each_call(cond_with_exception, PrePostValidation.new(&{}))
+    befores.push(PrePostValidation.new('pre', &condition))
+    define_method_added
   end
 
   def post(&condition)
-    cond_with_exception = PrePostValidation.new('post', &condition)
-
-    before_and_after_each_call(PrePostValidation.new(&{}), cond_with_exception)
+    afters.push(PrePostValidation.new('post', &condition))
+    define_method_added
   end
 end

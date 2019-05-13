@@ -1,3 +1,34 @@
+class BeforeAfterMethod
+  attr_accessor :proc, :already_has_method
+
+  def initialize(proc = proc{})
+    @proc = proc
+    @already_has_method = true
+  end
+
+  # Este no setea ningun parametro, porque los BeforeAfterMethod no los usan
+  def with_parameters(parameters_names, parameters_values)
+    self
+  end
+
+  def validate_over(instance, method_name, method_result = nil)
+    instance.instance_exec &proc
+  end
+
+  def should_validate?(actual_method)
+    true
+  end
+
+  def for_method(destination_method)
+    self
+  end
+
+  def execute_on(object, *args)
+    #Uso *args porque puede venir un el result como no
+    object.instance_exec args[0], &proc
+  end
+end
+
 class InvariantValidation
   attr_accessor :condition, :already_has_method, :type, :destination_method, :parameters
 
