@@ -91,6 +91,11 @@ class Module
     end
   end
 
+  def define_initialize
+    self.define_method(:initialize) do
+    end
+  end
+
   def before_and_after_each_call(_before, _after)
     self.add_before_validation(_before)
     self.add_after_validation(_after)
@@ -102,6 +107,7 @@ class Module
     cond_with_exception = InvariantValidation.new('invariant', &condition)
 
     before_and_after_each_call(InvariantValidation.new(&{}), cond_with_exception)
+    define_initialize
   end
 
   # TODO rename condition_with_validation por validate fulfillment
