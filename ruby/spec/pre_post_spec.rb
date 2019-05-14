@@ -71,8 +71,6 @@ describe 'Pre and post' do
   it 'should be able to pass a block to a method' do
     another_instance = ClassWithPreAndPostConditions.new
 
-    expect_fulfillment {another_instance.method_with_block {
-      another_instance.some_accessor += 1
-    }}
+    expect_fulfillment { another_instance.method_with_block {1} }
   end
 end

@@ -60,6 +60,6 @@ class ClassWithPreAndPostConditions
   pre { some_accessor == 10 }
   post { some_accessor == 11 }
   def method_with_block(&block)
-    block.call
+    self.some_accessor += block.call
   end
 end
