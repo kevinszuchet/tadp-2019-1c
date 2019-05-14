@@ -32,7 +32,8 @@ class InvariantValidation < BeforeAfterMethod
 
   def validate_over(object, *args)
     #Uso *args porque puede venir un el result como no
-    raise self.error unless object.instance_exec args[0], &proc
+    validation = object.instance_exec args[0], &proc
+    raise self.error unless validation || validation.nil?
   end
 end
 
