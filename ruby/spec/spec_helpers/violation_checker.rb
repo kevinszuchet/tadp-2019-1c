@@ -12,7 +12,7 @@ module ViolationChecker
   end
 
   def expected_post_condition_error(&block)
-    (expect &block).to raise_error(PreconditionError)
+    (expect &block).to raise_error(PostconditionError)
   end
 
   def expect_fulfillment(&block)
