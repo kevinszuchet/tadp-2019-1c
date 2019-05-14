@@ -112,8 +112,8 @@ class Module
 
   def invariant(&condition)
     afters.push(InvariantValidation.new(condition, InvariantError))
-    define_initialize
     define_method_added
+    define_initialize
   end
 
   # TODO rename condition_with_validation por validate fulfillment
