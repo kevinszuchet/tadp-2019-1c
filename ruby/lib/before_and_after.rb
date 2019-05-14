@@ -81,9 +81,7 @@ class Module
   end
 
   def set_validations_for_defined_method(validations, method_name)
-    # TODO revisar el filter: alguna forma mejor de hacerlo?
-    validations.select { |validation| !validation.already_has_method }
-        .map {|validation| validation.for_method(method_name) }
+    validations.map {|validation| validation.for_method(method_name) }
   end
 
   def add_method_args_as_methods(object, method, args)
@@ -113,19 +111,19 @@ class Module
   end
 
   def invariant(&condition)
-    afters.push(InvariantValidation.new(&condition))
+    afters.push(InvariantValidation.new(condition, InvariantError))
     define_initialize
     define_method_added
   end
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    befores.push(PrePostValidation.new(&condition))
+    befores.push(PrePostValidation.new(condition, PreconditionError))
     define_method_added
   end
 
   def post(&condition)
-    afters.push(PrePostValidation.new(&condition))
+    afters.push(PrePostValidation.new(condition, PostconditionError))
     define_method_added
   end
 end
