@@ -15,7 +15,7 @@ describe 'Pre and post' do
   end
 
   it 'should explode if the pre condition is not fulfilled' do
-    expected_pre_condition_error {an_instance.method_with_accessor_pre_violation}
+    expect_pre_condition_error {an_instance.method_with_accessor_pre_violation}
   end
 
   it 'should return as the method if there is no contract violation' do
@@ -44,7 +44,7 @@ describe 'Pre and post' do
   end
 
   it 'should explode if the pre validation is violated and the post doesnt' do
-    expected_pre_condition_error {an_instance.method_with_pre_violation}
+    expect_pre_condition_error {an_instance.method_with_pre_violation}
   end
 
   it 'if one method is defined twice in the class, it should return as the second when called' do
@@ -65,7 +65,7 @@ describe 'Pre and post' do
       end
     end
 
-    expected_post_condition_error {ClassWithPreAndPostConditions.new.method_with_post_ok}
+    expect_post_condition_error {ClassWithPreAndPostConditions.new.method_with_post_ok}
   end
 
   it 'should be able to pass a block to a method' do

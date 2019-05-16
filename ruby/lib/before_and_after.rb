@@ -118,12 +118,12 @@ class Module
 
   # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    befores.push(PrePostValidation.new(condition, PreconditionError))
+    befores.push(PrePostValidation.new(condition, PreConditionError))
     define_method_added
   end
 
   def post(&condition)
-    afters.push(PrePostValidation.new(condition, PostconditionError))
+    afters.push(PrePostValidation.new(condition, PostConditionError))
     define_method_added
   end
 end

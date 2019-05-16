@@ -1,18 +1,18 @@
 module ViolationChecker
-  def expect_violation(&block)
-    (expect &block).to raise_error(ContractViolation)
+  def expect_validation_error(error, &block)
+    (expect &block).to raise_error(error)
   end
 
-  def expected_invariant_error(&block)
-    (expect &block).to raise_error(InvariantError)
+  def expect_invariant_error(&block)
+    expect_validation_error(InvariantError, &block)
   end
 
-  def expected_pre_condition_error(&block)
-    (expect &block).to raise_error(PreconditionError)
+  def expect_pre_condition_error(&block)
+    expect_validation_error(PreConditionError, &block)
   end
 
-  def expected_post_condition_error(&block)
-    (expect &block).to raise_error(PostconditionError)
+  def expect_post_condition_error(&block)
+    expect_validation_error(PostConditionError, &block)
   end
 
   def expect_fulfillment(&block)
