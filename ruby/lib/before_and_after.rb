@@ -105,25 +105,25 @@ class Module
   end
 
   def before_and_after_each_call(_before, _after)
-    befores.push(BeforeAfterMethod.new(_before))
-    afters.push(BeforeAfterMethod.new(_after))
+    add_validation(BeforeAfterMethod.new(_before), self.befores)
+    add_validation(BeforeAfterMethod.new(_after), self.afters)
+  end
+
+  def add_validation(validation, where)
+    where.push(validation)
     define_method_added
   end
 
   def invariant(&condition)
-    afters.push(InvariantValidation.new(condition, InvariantError))
-    define_method_added
+    add_validation(InvariantValidation.new(condition), self.afters)
     define_initialize
   end
 
-  # TODO rename condition_with_validation por validate fulfillment
   def pre(&condition)
-    befores.push(PrePostValidation.new(condition, PreConditionError))
-    define_method_added
+    add_validation(PrePostValidation.new(condition, PreConditionError), self.befores)
   end
 
   def post(&condition)
-    afters.push(PrePostValidation.new(condition, PostConditionError))
-    define_method_added
+    add_validation(PrePostValidation.new(condition, PostConditionError), self.afters)
   end
 end

@@ -25,7 +25,7 @@ end
 class InvariantValidation < BeforeAfterMethod
   attr_accessor :error
 
-  def initialize(condition = condition{}, error)
+  def initialize(condition = condition{}, error = InvariantError)
     super(condition)
     self.error = error
   end
