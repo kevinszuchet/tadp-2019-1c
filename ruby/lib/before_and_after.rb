@@ -1,7 +1,6 @@
 require_relative 'exceptions'
 require_relative 'validation'
 
-# TODO chequear si no es mejor poner el before_and_after_each_call en Class. Queremos este comportamiento para los mixines? se linearizan...
 class Module
   attr_accessor :before_validations, :after_validations, :included_mixin, :was_redefined
 
@@ -62,7 +61,10 @@ class Module
     
     self.define_method(method.name) { |*args, &block|
       #Clono el objeto para no tener el problema que conllevaba poner y sacar los metodos (pudiendo sacar metodos que no queremos)
-      self_clone = self.class.add_method_args_as_methods(self.clone, method, args)
+      self_clone = self.clone
+
+      #Seteo los parametros como metodos para que las validaciones puedan usarlos
+      self.class.add_method_args_as_methods(self_clone, method, args)
 
       #Ejecuta los befores
       self_clone.class.validate(self_clone, self_clone.class.befores, method.name)
@@ -73,7 +75,7 @@ class Module
       #Ejecuta los afters
       self_clone.class.validate(self_clone, self_clone.class.afters, method.name, result)
 
-      #Si llego hasta aca es porque paso todas las validaciones => ejecuta el metodo sobre la instancia original (que tambien tiene las validaciones, pero van a dar ok)
+      #Si llego hasta aca es porque paso todas las validaciones => ejecuta el metodo (solo el cachito original) sobre la instancia original
       method.bind(self).call(*args, &block)
     }
   end
@@ -88,13 +90,10 @@ class Module
       .zip(args).each { |param|
         instance.define_singleton_method(param[0]) { param[1] }
       }
-    #Retorno la instancia
-    instance
   end
 
   def validate(instance, validations, method_name, method_result = nil)
-    validations.select { |validation| validation.should_validate? method_name }
-      .each { |validation| validation.validate_over(instance, method_result) }
+    validations.each { |validation| validation.execute_over(instance, method_name, method_result) }
   end
 
   def define_initialize
@@ -102,14 +101,14 @@ class Module
     end
   end
 
-  def before_and_after_each_call(_before, _after)
-    add_validation(BeforeAfterMethod.new(_before), self.befores)
-    add_validation(BeforeAfterMethod.new(_after), self.afters)
-  end
-
   def add_validation(validation, where)
     where.push(validation)
     define_method_added
+  end
+
+  def before_and_after_each_call(_before, _after)
+    add_validation(BeforeAfterMethod.new(_before), self.befores)
+    add_validation(BeforeAfterMethod.new(_after), self.afters)
   end
 
   def invariant(&condition)

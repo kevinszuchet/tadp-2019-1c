@@ -1,25 +1,24 @@
 class BeforeAfterMethod
   attr_accessor :condition
 
-  def initialize(condition = condition { })
+  def initialize(condition)
     self.condition = condition
   end
 
-  # Los BeforeAfterMethod siempre tienen que hacer la validacion
-  def should_validate?(actual_method)
+  # Los BeforeAfterMethod siempre tienen que ejecutarse (para todos los metodos)
+  def should_execute?(actual_method)
     true
   end
 
-  # Para los BeforeAfterMethod no importa el metodo
+  # Para los BeforeAfterMethod e InvariantValidation no setean el metodo porque no lo necesitan
   def for_method(destination_method)
     self
   end
 
-  def validate_over(object, method_result)
+  def execute_over(instance, method_name, method_result)
     #Uso method_result porque puede venir como no
-    object.instance_eval &condition
+    instance.instance_eval &condition
   end
-
 end
 
 class InvariantValidation < BeforeAfterMethod
@@ -30,16 +29,18 @@ class InvariantValidation < BeforeAfterMethod
     self.error = error
   end
 
-  def validate_over(object, method_result)
-    validation = object.instance_exec method_result, &condition
-    raise self.error unless validation || validation.nil?
+  def execute_over(instance, method_name, method_result)
+    if should_execute?(method_name)
+      validation = instance.instance_exec method_result, &condition
+      raise self.error unless validation || validation.nil?
+    end
   end
 end
 
 class PrePostValidation < InvariantValidation
   attr_accessor :destination_method, :already_has_method
 
-  def should_validate?(actual_method)
+  def should_execute?(actual_method)
     actual_method == self.destination_method
   end
 
@@ -48,5 +49,4 @@ class PrePostValidation < InvariantValidation
     self.already_has_method = true
     self
   end
-
 end
