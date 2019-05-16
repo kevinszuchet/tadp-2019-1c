@@ -1,8 +1,8 @@
 class BeforeAfterMethod
-  attr_accessor :proc
+  attr_accessor :condition
 
-  def initialize(proc = proc{})
-    @proc = proc
+  def initialize(condition = condition { })
+    self.condition = condition
   end
 
   # Los BeforeAfterMethod siempre tienen que hacer la validacion
@@ -15,9 +15,9 @@ class BeforeAfterMethod
     self
   end
 
-  def validate_over(object, *args)
-    #Uso *args porque pueden venir como no
-    object.instance_exec &proc
+  def validate_over(object, method_result)
+    #Uso method_result porque puede venir como no
+    object.instance_eval &condition
   end
 
 end
@@ -25,20 +25,18 @@ end
 class InvariantValidation < BeforeAfterMethod
   attr_accessor :error
 
-  def initialize(condition = proc{}, error = StandardError)
-    self.proc = condition
+  def initialize(condition = condition{}, error)
+    super(condition)
     self.error = error
   end
 
-  def validate_over(object, *args)
-    #Uso *args porque puede venir un el result como no
-    validation = object.instance_exec args[0], &proc
+  def validate_over(object, method_result)
+    validation = object.instance_exec method_result, &condition
     raise self.error unless validation || validation.nil?
   end
 end
 
 class PrePostValidation < InvariantValidation
-  
   attr_accessor :destination_method, :already_has_method
 
   def should_validate?(actual_method)

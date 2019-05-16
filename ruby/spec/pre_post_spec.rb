@@ -38,7 +38,7 @@ describe 'Pre and post' do
     expect_fulfillment {an_instance.method_with_empty_post}
   end
 
-  it 'should return the parameter if the method does that and the pre condition is fulfilled, and the instance should not have the parameter accessor' do
+  it 'should return the parameter if the method does that and the pre condition is fulfilled. also the instance should not have the parameter accessor' do
     expect(an_instance.method_with_arg("hello")).to eq "hello"
     expect(an_instance.respond_to?(:an_arg)).to eq false
   end

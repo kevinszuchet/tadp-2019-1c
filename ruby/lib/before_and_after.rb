@@ -84,14 +84,14 @@ class Module
     validations.map {|validation| validation.for_method(method_name) }
   end
 
-  def add_method_args_as_methods(object, method, args)
+  def add_method_args_as_methods(instance, method, args)
     #Agrego los parametros del metodo como metodos al objeto
     method.parameters.map { |arg| arg[1] }
       .zip(args).each { |param|
-        object.define_singleton_method(param[0]) { param[1] }
+        instance.define_singleton_method(param[0]) { param[1] }
       }
-    #Retorno el objeto
-    return object
+    #Retorno la instancia
+    instance
   end
 
   def validate(instance, validations, method_name, method_result = nil)
