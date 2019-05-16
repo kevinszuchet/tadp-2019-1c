@@ -20,7 +20,7 @@ class Module
     unless class_including_me.afters.empty?
       mixin_clone = self.clone
 
-      # Este unless es para que no entrar en un loop: aca adentro estamos incluyendo un mixin (send :include)!
+      # Este unless es para que no entrar en un loop: aca adentro estamos incluyendo un mixin, send(:include, mixin_clone)
       unless class_including_me.included_mixin
         mixin_clone.define_method_added
         # Como el mixin original va a seguir estando en la clase, este puede hacer super en cada metodo
@@ -43,39 +43,37 @@ class Module
     # TODO este if no lo esta tomando. de todas formas: podemos evitar redefinir un metodo al pedo, sin este if?
     # if !self.methods.include?(:method_added)
     def self.method_added(method_name)
-      #No es necesario self.was_redefined ||= false
       unless self.was_redefined
-        #Disable was_redefined para cortar la recursividad
+        #Para evitar un loop
         self.was_redefined = true
-        #Get UnboundMethod
+        #Obtiene el unbound method
         original_method = instance_method(method_name)
-        #Redefine method
         redefine_method(original_method)
-        #Enable was_redefined para poder seguir redefiniendo metodos
+        #Para poder seguir agregando metodos luego
         self.was_redefined = false
       end
     end
   end
 
   def redefine_method(method)
-    #Bindeo los pre y post con el metodo
+    #Seteo las nuevas validaciones para el ultimo metodo que se agrego
     set_validations_for_defined_method(self.befores, method.name)
     set_validations_for_defined_method(self.afters, method.name)
     
     self.define_method(method.name) { |*args, &block|
-      #Clono el objeto para no tener que reestablecer los metodos luego
+      #Clono el objeto para no tener el problema que conllevaba poner y sacar los metodos (pudiendo sacar metodos que no queremos)
       self_clone = self.class.add_method_args_as_methods(self.clone, method, args)
 
-      #Execute befores
+      #Ejecuta los befores
       self_clone.class.validate(self_clone, self_clone.class.befores, method.name)
 
-      #Execute method in clone because it could have effect and get result
+      #Ejecuta el metodo en el clone porque podria tener efecto
       result = method.bind(self_clone).call(*args, &block)
 
-      #Execute afters
+      #Ejecuta los afters
       self_clone.class.validate(self_clone, self_clone.class.afters, method.name, result)
 
-      #Execute method and return result
+      #Si llego hasta aca es porque paso todas las validaciones => ejecuta el metodo sobre la instancia original (que tambien tiene las validaciones, pero van a dar ok)
       method.bind(self).call(*args, &block)
     }
   end
