@@ -1,7 +1,7 @@
 #Errors
 
 class ValidationError < StandardError
-  def intialize(msg)
+  def initialize(msg)
     super("The " + msg + " condition was not fulfilled")
   end
 end

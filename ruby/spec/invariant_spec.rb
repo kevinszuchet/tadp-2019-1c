@@ -56,7 +56,8 @@ describe 'Invariant' do
     class_with_invariant_and_method_parameter = ClassWithInvariantMethodParameter.new
     expect(class_with_invariant_and_method_parameter.respond_to?(:an_arg)).to eq false
   end
-  it 'class with a false invariant, with attributes, with no initialize method should explode calling the new method' do
+
+  it 'class with a false invariant, with attributes, with no initialize method should explode instantiating the class' do
     expect_invariant_error {ClassWithFalseInvariantThatHasAttr.new}
   end
 
