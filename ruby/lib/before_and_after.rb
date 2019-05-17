@@ -86,9 +86,9 @@ class Module
 
   def add_method_args_as_methods(instance, method, args)
     #Agrego los parametros del metodo como metodos al objeto
-    method.parameters.map { |arg| arg[1] }
-      .zip(args).each { |param|
-        instance.define_singleton_method(param[0]) { param[1] }
+    method.parameters.map { |(_, param_name)| param_name }
+      .zip(args).each { |(param_name, arg_value)|
+        instance.define_singleton_method(param_name) { arg_value }
       }
   end
 
