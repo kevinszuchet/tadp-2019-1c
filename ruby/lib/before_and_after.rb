@@ -81,7 +81,7 @@ class Module
   end
 
   def set_validations_for_defined_method(validations, method_name)
-    validations.map {|validation| validation.for_method(method_name) }
+    validations.each {|validation| validation.for_method(method_name) }
   end
 
   def add_method_args_as_methods(instance, method, args)

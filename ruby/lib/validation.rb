@@ -11,9 +11,7 @@ class BeforeAfterMethod
   end
 
   # Para los BeforeAfterMethod e InvariantValidation no setean el metodo porque no lo necesitan
-  def for_method(destination_method)
-    self
-  end
+  def for_method(destination_method) end
 
   def execute_over(instance, method_name, method_result)
     #Uso method_result porque puede venir como no
@@ -47,6 +45,5 @@ class PrePostValidation < InvariantValidation
   def for_method(destination_method)
     self.destination_method = destination_method unless already_has_method
     self.already_has_method = true
-    self
   end
 end
