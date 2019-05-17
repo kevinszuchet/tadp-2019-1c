@@ -2,14 +2,19 @@ require_relative '../../lib/before_and_after'
 
 module AMixinC
   def mixin_method
-    "im a mixin"
+    self.some_accessor = 0
   end
 end
 
 class ClassWithInvariantViolationAndMixines
-  invariant { pp 'about to exec invariant'; 1 < 0 }
+  attr_accessor :some_accessor
+  invariant { pp 'about to exec invariant'; some_accessor > 0 }
 
   include AMixinC
+
+  def initialize
+    self.some_accessor = 1
+  end
 
   def some_method
 
