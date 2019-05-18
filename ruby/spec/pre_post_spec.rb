@@ -15,7 +15,7 @@ describe 'Pre and post' do
   end
 
   it 'should explode if the pre condition is not fulfilled' do
-    expect_violation {an_instance.method_with_accessor_pre_violation}
+    expect_pre_condition_error {an_instance.method_with_accessor_pre_violation}
   end
 
   it 'should return as the method if there is no contract violation' do
@@ -38,13 +38,13 @@ describe 'Pre and post' do
     expect_fulfillment {an_instance.method_with_empty_post}
   end
 
-  it 'should return the parameter if the method does that and the pre condition is fulfilled, and the instance should not have the parameter accessor' do
+  it 'should return the parameter if the method does that and the pre condition is fulfilled. also the instance should not have the parameter accessor' do
     expect(an_instance.method_with_arg("hello")).to eq "hello"
     expect(an_instance.respond_to?(:an_arg)).to eq false
   end
 
   it 'should explode if the pre validation is violated and the post doesnt' do
-    expect_violation {an_instance.method_with_pre_violation}
+    expect_pre_condition_error {an_instance.method_with_pre_violation}
   end
 
   it 'if one method is defined twice in the class, it should return as the second when called' do
@@ -65,14 +65,12 @@ describe 'Pre and post' do
       end
     end
 
-    expect_violation {ClassWithPreAndPostConditions.new.method_with_post_ok}
+    expect_post_condition_error {ClassWithPreAndPostConditions.new.method_with_post_ok}
   end
 
   it 'should be able to pass a block to a method' do
     another_instance = ClassWithPreAndPostConditions.new
 
-    expect_fulfillment {another_instance.method_with_block {
-      another_instance.some_accessor += 1
-    }}
+    expect_fulfillment { another_instance.method_with_block {1} }
   end
 end

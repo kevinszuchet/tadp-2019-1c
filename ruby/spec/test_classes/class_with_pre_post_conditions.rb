@@ -45,7 +45,7 @@ class ClassWithPreAndPostConditions
   def method_with_empty_post
   end
 
-  pre { pp 'an_arg is', an_arg; false != true && an_arg == "hello" }
+  pre { pp 'an_arg is', an_arg; an_arg == "hello" }
   post { |result| pp 'executing post'; result == an_arg }
   def method_with_arg(an_arg)
     an_arg
@@ -60,6 +60,6 @@ class ClassWithPreAndPostConditions
   pre { some_accessor == 10 }
   post { some_accessor == 11 }
   def method_with_block(&block)
-    block.call
+    self.some_accessor += block.call
   end
 end
