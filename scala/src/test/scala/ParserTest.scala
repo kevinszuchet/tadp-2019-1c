@@ -21,25 +21,25 @@ class ParserTest extends FreeSpec with Matchers {
 
     "anyChar" - {
       "deberia devolver un success de ParserResult(h, ola) cuando el string es hola" in {
-        assertParserSucceededWithResult(new Parser("hola").anyChar, new ParserResult("h", "ola"))
+        assertParserSucceededWithResult(new AnyChar().parse("hola"), new ParserResult("h", "ola"))
       }
 
       "deberia fallar cuando el string es vacio" in {
-        assertEmptyString(new Parser("").anyChar.get)
+        assertEmptyString(new AnyChar().parse("").get)
       }
     }
 
     "char" - {
       "deberia devolver un success de ParserResult(c, hau) cuando el string es chau y el caracter es c" in {
-        assertParserSucceededWithResult(new Parser("chau").char('c'), new ParserResult("c", "hau"))
+        assertParserSucceededWithResult(new CharParser('c').parse("chau"), new ParserResult("c", "hau"))
       }
 
       "deberia fallar cuando el string es hola y el caracter es c" in {
-        assertNotFoundCharacter(new Parser("hola").char('c').get)
+        assertNotFoundCharacter(new CharParser('c').parse("hola").get)
       }
 
       "deberia fallar cuando el string es vacio" in {
-        assertEmptyString(new Parser("").char('c').get)
+        assertNotFoundCharacter(new CharParser('c').parse("").get)
       }
     }
   }
