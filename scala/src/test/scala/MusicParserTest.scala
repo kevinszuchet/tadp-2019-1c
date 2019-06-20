@@ -1,5 +1,6 @@
 import Musica._
 import org.scalatest.{FreeSpec, Matchers}
+import parser.{MusicParser, ParserException}
 
 class MusicParserTest extends FreeSpec with Matchers {
   def assertParsesSucceededWithResult[T](actualResult: T, expectedResult: T): Unit = {

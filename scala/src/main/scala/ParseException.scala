@@ -1,0 +1,1 @@
+case class ParseException(private val message: String = "") extends RuntimeException(message) {}

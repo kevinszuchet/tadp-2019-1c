@@ -1,5 +1,6 @@
 import Musica._
 import javax.sound.midi.{MidiChannel, MidiSystem}
+import parser.MusicParser
 
 object AudioPlayer {
   private val VOLUME = 80
