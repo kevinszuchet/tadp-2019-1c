@@ -21,7 +21,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "anyChar" - {
       "deberia devolver un success de ParserResult(h, ola) cuando el string es hola" in {
-        assertParserSucceededWithResult(new AnyChar().parse("hola"), new ParserResult("h", "ola"))
+        assertParserSucceededWithResult(new AnyChar().parse("hola"), new ParserResult('h', "ola"))
       }
 
       "deberia fallar cuando el string es vacio" in {
@@ -31,7 +31,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "char" - {
       "deberia devolver un success de ParserResult(c, hau) cuando el string es chau y el caracter es c" in {
-        assertParserSucceededWithResult(new CharParser('c').parse("chau"), new ParserResult("c", "hau"))
+        assertParserSucceededWithResult(new CharParser('c').parse("chau"), new ParserResult('c', "hau"))
       }
 
       "deberia fallar cuando el string es hola y el caracter es c" in {
@@ -39,7 +39,7 @@ class ParserTest extends FreeSpec with Matchers {
       }
 
       "deberia fallar cuando el string es vacio" in {
-        assertNotFoundCharacter(new CharParser('c').parse("").get)
+        assertEmptyString(new CharParser('c').parse("").get)
       }
     }
   }
