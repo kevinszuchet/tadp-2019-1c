@@ -1,13 +1,13 @@
 import scala.util.{Failure, Success, Try}
 
-case class Parser (input: String) {
-  def anyChar: Try[ParserResult] = input.toList match {
+case object Parser {
+  def anyChar(input: String): Try[ParserResult] = input.toList match {
     case List() => Failure (new EmptyStringException)
     case head :: tail => Success (new ParserResult (head.toString, tail.mkString))
   }
 
-  def char(char: Char): Try[ParserResult] =
-    if (input.startsWith(char.toString) || input.isEmpty) this.anyChar else Failure(new CharacterNotFoundException(char, input))
+  def char(input: String, char: Char): Try[ParserResult] =
+    this.anyChar(input).filter(aChar => aChar == char).orElse(Failure(new EmptyStringException))
 }
 
 
