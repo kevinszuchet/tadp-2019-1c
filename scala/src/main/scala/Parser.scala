@@ -11,7 +11,7 @@ case object Parsers {
   }
 
   def char(char: Char) : Parser = input =>
-    this.anyChar(input).filter(aChar => aChar == char).orElse(Failure(new CharacterNotFoundException(char, input)))
+    this.anyChar(input).filter(result => result.parsedElement == char.toString).orElse(Failure(new CharacterNotFoundException(char, input)))
 
   def <|>(firstParser: Parser, secondParser: Parser): Parser = input =>
     (firstParser(input), secondParser(input)) match {

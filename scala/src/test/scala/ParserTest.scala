@@ -39,7 +39,7 @@ class ParserTest extends FreeSpec with Matchers {
       }
 
       "deberia fallar cuando el string es vacio" in {
-        assertEmptyString(Parsers.char('c')("").get)
+        assertNotFoundCharacter(Parsers.char('c')("").get)
       }
     }
   }
