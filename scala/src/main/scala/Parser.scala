@@ -3,6 +3,7 @@ import scala.util.{Failure, Success, Try}
 class EmptyStringException extends Exception
 class CharacterNotFoundException(char: Char, input: String) extends Exception("The character '$char' was not found in $input")
 class NotALetterException(input: String) extends Exception
+class NotADigitException(input: String) extends Exception
 
 case class ParserResult[T](parsedElement: T, notConsumed: String)
 
@@ -42,25 +43,23 @@ case object void extends Parser[Unit] {
     Success(ParserResult[Unit]((), input.tail))
 }
 
+// TODO generalizar letter y digit, hacen lo mismo
 case object letter extends Parser[Char] {
   def parseCriterion(input: String): Try[ParserResult[Char]] =
     anyChar(input).filter(_.parsedElement.isLetter)
       .orElse(Failure(new NotALetterException(input)))
 }
 
-/*
-
-case object digit extends ParserMixin {
-  override def inputIsValid= (input: String) => super.inputIsValid(input).filter(_.head.isDigit)
-  def parseCriterion: String => Char = anyChar.parseCriterion
+case object digit extends Parser[Char] {
+  def parseCriterion(input: String): Try[ParserResult[Char]] =
+    anyChar(input).filter(_.parsedElement.isDigit)
+      .orElse(Failure(new NotADigitException(input)))
 }
 
-case object alphaNum extends ParserMixin {
-  override def inputIsValid= (input: String) => super.inputIsValid(input).filter(_.head.isLetterOrDigit)
-  def parseCriterion: String => Char = anyChar.parseCriterion
+case object alphaNum extends Parser[Char] {
+  def parseCriterion(input: String) : Try[ParserResult[Char]] = ???
 }
 
-case class string(headSring: String) extends ParserMixin {
-  override def inputIsValid= (input: String) => super.inputIsValid(input).filter(_.contains(headSring))
-  def parseCriterion: String => String = (input:String) => headSring
-}*/
+case class string(headSring: String) extends Parser[String] {
+  def parseCriterion(input: String) : Try[ParserResult[String]] = ???
+}
