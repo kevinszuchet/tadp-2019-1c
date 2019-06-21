@@ -42,6 +42,16 @@ class ParserTest extends FreeSpec with Matchers {
         assertEmptyString(char('c')("").get)
       }
     }
+
+    "letter" - {
+      "deberia devolver success con ParserResult(t, otal) cuando el string es total" in {
+        assertParserSucceededWithResult(letter("total"), new ParserResult("t", "otal"))
+      }
+
+      "deberia fallar cuando el string es vacio" in {
+        assertEmptyString(letter("").get)
+      }
+    }
   }
 
 }
