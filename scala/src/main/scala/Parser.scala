@@ -16,6 +16,14 @@ sealed trait Parser[T] {
   def apply(input: String): Try[ParserResult[T]] = parseIfNotEmpty(input)
 
   def parseCriterion(input: String) : Try[ParserResult[T]]
+
+  type Parser[T] = String => Try[ParserResult[T]]
+
+  def <|>(anotherParser: Parser[???]) : Parser[???] = input =>
+    this(input) match {
+      case Success(parserResult) => Success(parserResult)
+      case _ => anotherParser(input)
+    }
 }
 
 case object anyChar extends Parser[Char] {
