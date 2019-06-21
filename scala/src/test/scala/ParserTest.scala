@@ -25,6 +25,10 @@ class ParserTest extends FreeSpec with Matchers {
     assertThrows[NotADigitException](actualResult)
   }
 
+  def assertNotAnAlphaNum[T](actualResult: ⇒ T): Unit = {
+    assertThrows[NotAnAlphaNumException](actualResult)
+  }
+
   "Parsers" - {
 
     "anyChar" - {
@@ -86,6 +90,24 @@ class ParserTest extends FreeSpec with Matchers {
 
       "deberia fallar cuando el string es vacio" in {
         assertEmptyString(digit("").get)
+      }
+    }
+
+    "alphaNum" - {
+      "deberia devolver success con ParserResult(t, otal) cuando el string es total" in {
+        assertParserSucceededWithResult(alphaNum("total"), new ParserResult('t', "otal"))
+      }
+
+      "deberia devolver success con ParserResult(1, 23abc) cuando el string es 123abc" in {
+        assertParserSucceededWithResult(alphaNum("123abc"), new ParserResult('1', "23abc"))
+      }
+
+      "deberia fallar cuando el string es (5 + 4)" in {
+        assertNotAnAlphaNum(alphaNum("(5 + 4)").get)
+      }
+
+      "deberia fallar cuando el string es vacio" in {
+        assertEmptyString(alphaNum("").get)
       }
     }
   }
