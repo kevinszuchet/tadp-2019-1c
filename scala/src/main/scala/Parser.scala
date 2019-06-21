@@ -24,5 +24,5 @@ case object Parsers {
 }
 
 class EmptyStringException extends Exception
-class CharacterNotFoundException(char: Char, input: String) extends Exception("The character '$char' does not found in $input")
+class CharacterNotFoundException(char: Char, input: String) extends Exception("The character '$char' was not found in $input")
 case class ParserResult(parsedElement: String, notConsumed: String)
