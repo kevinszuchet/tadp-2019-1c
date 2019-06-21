@@ -19,13 +19,11 @@ sealed trait Parser[T] {
 
   def parseCriterion(input: String) : Try[ParserResult[T]]
 
-  /*type Parser[T] = String => Try[ParserResult[T]]
-
-  def <|>(anotherParser: Parser[???]) : Parser[???] = input =>
+  def <|>(anotherParser: Parser[T]) : String => Try[ParserResult[T]] = input =>
     this(input) match {
       case Success(parserResult) => Success(parserResult)
       case _ => anotherParser(input)
-    }*/
+    }
 }
 
 case object anyChar extends Parser[Char] {
@@ -57,9 +55,10 @@ case object digit extends Parser[Char] {
       .orElse(Failure(new NotADigitException(input)))
 }
 
-// TODO esto deberia ser asi (letter <|> digit)(input)?
 case object alphaNum extends Parser[Char] {
-  def parseCriterion(input: String) : Try[ParserResult[Char]] = ???
+  def parseCriterion(input: String) : Try[ParserResult[Char]] =
+    (letter <|> digit)(input)
+      .orElse(Failure(new NotAnAlphaNumException(input)))
 }
 
 case class string(headSring: String) extends Parser[String] {
