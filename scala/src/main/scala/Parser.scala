@@ -17,13 +17,13 @@ sealed trait Parser[T] {
 
   def parseCriterion(input: String) : Try[ParserResult[T]]
 
-  type Parser[T] = String => Try[ParserResult[T]]
+  /*type Parser[T] = String => Try[ParserResult[T]]
 
   def <|>(anotherParser: Parser[???]) : Parser[???] = input =>
     this(input) match {
       case Success(parserResult) => Success(parserResult)
       case _ => anotherParser(input)
-    }
+    }*/
 }
 
 case object anyChar extends Parser[Char] {
@@ -37,16 +37,18 @@ case class char(char: Char) extends Parser[Char] {
       .orElse(Failure(new CharacterNotFoundException(char, input)))
 }
 
+case object void extends Parser[Unit] {
+  def parseCriterion(input: String) : Try[ParserResult[Unit]] =
+    Success(ParserResult[Unit]((), input.tail))
+}
+
 case object letter extends Parser[Char] {
   def parseCriterion(input: String): Try[ParserResult[Char]] =
     anyChar(input).filter(_.parsedElement.isLetter)
       .orElse(Failure(new NotALetterException(input)))
 }
 
-/*case object void extends ParserInterface {
-  def parseCriterion(input: String) : Try[ParserResult] =
-
-}
+/*
 
 case object digit extends ParserMixin {
   override def inputIsValid= (input: String) => super.inputIsValid(input).filter(_.head.isDigit)

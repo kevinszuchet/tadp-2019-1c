@@ -43,6 +43,16 @@ class ParserTest extends FreeSpec with Matchers {
       }
     }
 
+    "void" - {
+      "deberia devolver success con ParserResult(null, ola) cuando el string es hola" in {
+        assertParserSucceededWithResult(void("hola"), new ParserResult((), "ola"))
+      }
+
+      "deberia fallar cuando el string es vacio" in {
+        assertEmptyString(void("").get)
+      }
+    }
+
     "letter" - {
       "deberia devolver success con ParserResult(t, otal) cuando el string es total" in {
         assertParserSucceededWithResult(letter("total"), new ParserResult('t', "otal"))
