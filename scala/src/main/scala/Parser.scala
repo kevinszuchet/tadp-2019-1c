@@ -23,7 +23,7 @@ class Parser[T](parseCriterion: String => ParserResult[T]) {
     )
 }
 case object anyChar extends Parser[Char](
-    input => Success((input.head, input.tail))
+    input => Success(input.head, input.tail)
 )
 
 case class char(char: Char) extends Parser[Char](
