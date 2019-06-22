@@ -3,6 +3,9 @@ import scala.util.{Failure, Success, Try}
 class EmptyStringException extends Exception
 class CharacterNotFoundException(char: Char, input: String)
       extends Exception(s"The character '$char' was not found in $input")
+//class NotCorrectTypeException(input: String) extends Exception
+//class NotALetterException(input: String) extends NotCorrectTypeException(input)
+//class NotADigitException(input: String) extends NotCorrectTypeException(input)
 class NotALetterException(input: String) extends Exception
 class NotADigitException(input: String) extends Exception
 class NotAnAlphaNumException(input: String) extends Exception
@@ -10,6 +13,8 @@ class NotTheRightStringException(expectedString : String, currentString: String)
       extends Exception (s"Expected $expectedString... but got $currentString")
 
 case class ParserResult[T](parsedElement: T, notConsumed: String)
+
+//type Result[T] = (T, String)
 
 sealed trait Parser[T] {
   def parseIfNotEmpty(input: String): Try[ParserResult[T]] =
@@ -46,6 +51,15 @@ case object void extends Parser[Unit] {
 }
 
 // TODO generalizar letter y digit, hacen lo mismo
+/*
+case class TypeCheckerParser[ExceptionType <: NotCorrectTypeException](typeCheckerFunction: Char => Boolean) extends Parser[Char]{
+  def parseCriterion(input: String): Try[ParserResult[Char]] =
+    anyChar(input).filter(c => typeCheckerFunction(c))
+      .orElse(Failure(new ExceptionType(input)))
+}
+object letter extends TypeCheckerParser[NotALetterException]((currentChar: Char) => currentChar.isLetter){}
+object digit extends TypeCheckerParser[NotADigitException]((currentChar: Char) => currentChar.isDigit){}
+*/
 case object letter extends Parser[Char] {
   def parseCriterion(input: String): Try[ParserResult[Char]] =
     anyChar(input).filter(_.parsedElement.isLetter)
@@ -66,7 +80,7 @@ case object alphaNum extends Parser[Char] {
 //TODO Esta más lindo el código pero no usar char() cómo la anterior versión, debería usarlo?
 case class string(headString: String) extends Parser[String] {
   def parseCriterion(input: String) : Try[ParserResult[String]] = {
-    if((headString zip input).forall{ case (expected, current) => expected == current })
+    if(input.startsWith(headString))
       Success(ParserResult(headString, input.slice(headString.length, input.length)))
     else
       Failure(new NotTheRightStringException(headString, input))

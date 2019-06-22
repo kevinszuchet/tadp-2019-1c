@@ -123,11 +123,14 @@ class ParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(string("hola")("hola"), new ParserResult("hola", ""))
       }
 
+      "deberia fallar cuando el string es hol" in {
+        assertNotTheRightStringException(string("hola")("hol").get)
+      }
+
       "deberia fallar cuando el string es holgado" in {
         assertNotTheRightStringException(string("hola")("holgado").get)
       }
 
     }
   }
-
 }
