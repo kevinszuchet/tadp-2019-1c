@@ -2,19 +2,19 @@ import scala.util.{Failure, Success, Try}
 
 object ParsersTypes {
   //(parsedElement, notConsumed)
-  type ParserOutput[T] = (T, String)
-  type ParserResult[T] = Try[ParserOutput[T]]
+  type ParserOutput[+T] = (T, String)
+  type ParserResult[+T] = Try[ParserOutput[T]]
   type ParserCondition[T] = T => Boolean
 }
 import ParsersTypes._
 
-class Parser[T](criterion: String => ParserResult[T]) {
+class Parser[+T](criterion: String => ParserResult[T]) {
   def parseIfNotEmpty(input: String): ParserResult[T] =
     if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
 
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
 
-  def <|>(anotherParser: Parser[T]) : Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
+  def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
 
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
@@ -46,7 +46,6 @@ class Parser[T](criterion: String => ParserResult[T]) {
   def opt = new Parser[Option[T]](
     input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try((None, input)))
   )
-
 }
 
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
