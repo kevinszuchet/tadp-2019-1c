@@ -28,6 +28,9 @@ class ParserTest extends FreeSpec with Matchers {
   def assertNotAnAlphaNum[T](actualResult: ⇒ T): Unit = {
     assertThrows[NotAnAlphaNumException](actualResult)
   }
+  def assertNotTheRightStringException[T](actualResult: ⇒ T): Unit = {
+    assertThrows[NotTheRightStringException](actualResult)
+  }
 
   "Parsers" - {
 
@@ -109,6 +112,21 @@ class ParserTest extends FreeSpec with Matchers {
       "deberia fallar cuando el string es vacio" in {
         assertEmptyString(alphaNum("").get)
       }
+    }
+
+    "string con hola como string cabecera" - {
+      "deberia devolver success con ParserResult(hola, mundo!) cuando el string es hola mundo!" in {
+        assertParserSucceededWithResult(string("hola")("hola mundo!"), new ParserResult("hola", " mundo!"))
+      }
+
+      "deberia devolver success con ParserResult(hola, ) cuando el string es hola" in {
+        assertParserSucceededWithResult(string("hola")("hola"), new ParserResult("hola", ""))
+      }
+
+      "deberia fallar cuando el string es holgado" in {
+        assertNotTheRightStringException(string("hola")("holgado").get)
+      }
+
     }
   }
 

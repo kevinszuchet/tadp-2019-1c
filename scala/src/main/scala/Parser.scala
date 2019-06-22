@@ -1,10 +1,13 @@
 import scala.util.{Failure, Success, Try}
 
 class EmptyStringException extends Exception
-class CharacterNotFoundException(char: Char, input: String) extends Exception("The character '$char' was not found in $input")
+class CharacterNotFoundException(char: Char, input: String)
+      extends Exception(s"The character '$char' was not found in $input")
 class NotALetterException(input: String) extends Exception
 class NotADigitException(input: String) extends Exception
 class NotAnAlphaNumException(input: String) extends Exception
+class NotTheRightStringException(expectedString : String, currentString: String)
+      extends Exception (s"Expected $expectedString... but got $currentString")
 
 case class ParserResult[T](parsedElement: T, notConsumed: String)
 
@@ -60,7 +63,24 @@ case object alphaNum extends Parser[Char] {
     (letter <|> digit)(input)
       .orElse(Failure(new NotAnAlphaNumException(input)))
 }
+//TODO Funciona pero esta horrible el código, habría que pensar cómo plantearlo de alguna otra manera
+case class string(headString: String) extends Parser[String] {
+  def parseCriterion(input: String) : Try[ParserResult[String]] = {
+    headString.toList.foldLeft(Try(ParserResult("", input))) {
+      (previousResult, currentChar) =>  (previousResult, currentChar) match {
+        case(Success(ParserResult(parsedElement, notConsumed)), _) =>
+          makePartialResult(new char(currentChar).apply(notConsumed), parsedElement, input)
+        case _ => previousResult
+      }
+    }
+  }
 
-case class string(headSring: String) extends Parser[String] {
-  def parseCriterion(input: String) : Try[ParserResult[String]] = ???
+  def makePartialResult(result : Try[ParserResult[Char]], previousParsedElement: String, input: String) :
+    Try[ParserResult[String]] = {
+      result match {
+        case(Success(ParserResult(parsedElement, notConsumed))) => Success(ParserResult(previousParsedElement + parsedElement.toString, notConsumed))
+        case _ => Failure(new NotTheRightStringException(headString, input))
+      }
+  }
+
 }
