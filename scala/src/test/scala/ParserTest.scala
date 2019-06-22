@@ -147,3 +147,5 @@ class ParserTest extends FreeSpec with Matchers {
   }
 
 }
+
+anyChar.<|>(anyChar).<|>(anyChar) ("hola")
