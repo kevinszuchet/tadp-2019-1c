@@ -151,6 +151,10 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult((char('c') <|> char('h'))("helado"), ('h', "elado"))
         }
 
+        "se puede aplicar con dos parser's de distinto tipo" in {
+          assertParserSucceededWithResult((anyChar <|> void)("input"), ('i', "nput"))
+        }
+
         "Concatenación de <|>" - {
 
           "cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
