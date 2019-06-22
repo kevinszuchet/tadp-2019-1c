@@ -22,13 +22,14 @@ class Parser[T](parseCriterion: String => ParserResult[T]) {
         }
     )
 }
+
 case object anyChar extends Parser[Char](
-    input => Success(input.head, input.tail)
+  input => Success(input.head, input.tail)
 )
 
 case class char(char: Char) extends Parser[Char](
-    input  => anyChar(input).filter(_._1 == char)
-      .orElse(Failure(new CharacterNotFoundException(char, input)))
+  input  => anyChar(input).filter(_._1 == char)
+    .orElse(Failure(new CharacterNotFoundException(char, input)))
 )
 
 case object void extends Parser[Unit](
@@ -49,7 +50,6 @@ case object alphaNum extends Parser[Char](
   input => (letter <|> digit)(input)
     .orElse(Failure(new NotAnAlphaNumException(input)))
 )
-
 
 case class string(headString: String) extends Parser[String](
   input =>
