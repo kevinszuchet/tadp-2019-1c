@@ -44,6 +44,10 @@ class ParserTest extends FreeSpec with Matchers {
         "deberia fallar cuando el string es vacio" in {
           assertEmptyString(anyChar("").get)
         }
+
+        "deberia devolver un success cuando el input tiene un unico caracter" in {
+          assertParserSucceededWithResult(anyChar("h"), ('h', ""))
+        }
       }
 
       "char" - {
