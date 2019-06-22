@@ -36,7 +36,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "anyChar" - {
       "deberia devolver un success de ParserResult(h, ola) cuando el string es hola" in {
-        assertParserSucceededWithResult(anyChar("hola"), new ParserOutput('h', "ola"))
+        assertParserSucceededWithResult(anyChar("hola"), ('h', "ola"))
       }
 
       "deberia fallar cuando el string es vacio" in {
@@ -46,7 +46,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "char" - {
       "deberia devolver un success de ParserResult(c, hau) cuando el string es chau y el caracter es c" in {
-        assertParserSucceededWithResult(char('c')("chau"), new ParserOutput('c', "hau"))
+        assertParserSucceededWithResult(char('c')("chau"), ('c', "hau"))
       }
 
       "deberia fallar cuando el string es hola y el caracter es c" in {
@@ -60,7 +60,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "void" - {
       "deberia devolver success con ParserResult(null, ola) cuando el string es hola" in {
-        assertParserSucceededWithResult(void("hola"), new ParserOutput((), "ola"))
+        assertParserSucceededWithResult(void("hola"), ((), "ola"))
       }
 
       "deberia fallar cuando el string es vacio" in {
@@ -70,7 +70,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "letter" - {
       "deberia devolver success con ParserResult(t, otal) cuando el string es total" in {
-        assertParserSucceededWithResult(letter("total"), new ParserOutput('t', "otal"))
+        assertParserSucceededWithResult(letter("total"), ('t', "otal"))
       }
 
       "deberia fallar cuando el string abc123" in {
@@ -84,7 +84,7 @@ class ParserTest extends FreeSpec with Matchers {
 
     "digit" - {
       "deberia devolver success con ParserResult(1, 23abc) cuando el string es 123abc" in {
-        assertParserSucceededWithResult(digit("123abc"), new ParserOutput('1', "23abc"))
+        assertParserSucceededWithResult(digit("123abc"), ('1', "23abc"))
       }
 
       "deberia fallar cuando el string abc123" in {
@@ -98,11 +98,11 @@ class ParserTest extends FreeSpec with Matchers {
 
     "alphaNum" - {
       "deberia devolver success con ParserResult(t, otal) cuando el string es total" in {
-        assertParserSucceededWithResult(alphaNum("total"), new ParserOutput('t', "otal"))
+        assertParserSucceededWithResult(alphaNum("total"), ('t', "otal"))
       }
 
       "deberia devolver success con ParserResult(1, 23abc) cuando el string es 123abc" in {
-        assertParserSucceededWithResult(alphaNum("123abc"), new ParserOutput('1', "23abc"))
+        assertParserSucceededWithResult(alphaNum("123abc"), ('1', "23abc"))
       }
 
       "deberia fallar cuando el string es (5 + 4)" in {
@@ -116,11 +116,11 @@ class ParserTest extends FreeSpec with Matchers {
 
     "string con hola como string cabecera" - {
       "deberia devolver success con ParserResult(hola, mundo!) cuando el string es hola mundo!" in {
-        assertParserSucceededWithResult(string("hola")("hola mundo!"), new ParserOutput("hola", " mundo!"))
+        assertParserSucceededWithResult(string("hola")("hola mundo!"), ("hola", " mundo!"))
       }
 
       "deberia devolver success con ParserResult(hola, ) cuando el string es hola" in {
-        assertParserSucceededWithResult(string("hola")("hola"), new ParserOutput("hola", ""))
+        assertParserSucceededWithResult(string("hola")("hola"), ("hola", ""))
       }
 
       "deberia fallar cuando el string es hol" in {
@@ -134,10 +134,10 @@ class ParserTest extends FreeSpec with Matchers {
 
     "Concatenación de <|>" - {
       "Cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
-        assertParserSucceededWithResult((anyChar <|> anyChar <|> anyChar)("hola"), new ParserOutput('h', "ola"))
+        assertParserSucceededWithResult((anyChar <|> anyChar <|> anyChar)("hola"), ('h', "ola"))
       }
       "Al concatenar dos <|> con anycChar(c), digit y char(h) con input hola devuelve (h, ola)" in {
-        assertParserSucceededWithResult((char('c') <|> digit <|> char('h'))("hola"), new ParserOutput('h', "ola"))
+        assertParserSucceededWithResult((char('c') <|> digit <|> char('h'))("hola"), ('h', "ola"))
       }
 
       "Al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
@@ -145,5 +145,5 @@ class ParserTest extends FreeSpec with Matchers {
       }
     }
   }
-  
+
 }
