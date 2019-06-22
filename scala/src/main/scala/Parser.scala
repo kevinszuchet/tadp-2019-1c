@@ -63,24 +63,12 @@ case object alphaNum extends Parser[Char] {
     (letter <|> digit)(input)
       .orElse(Failure(new NotAnAlphaNumException(input)))
 }
-//TODO Funciona pero esta horrible el código, habría que pensar cómo plantearlo de alguna otra manera
+//TODO Esta más lindo el código pero no usar char() cómo la anterior versión, debería usarlo?
 case class string(headString: String) extends Parser[String] {
   def parseCriterion(input: String) : Try[ParserResult[String]] = {
-    headString.toList.foldLeft(Try(ParserResult("", input))) {
-      (previousResult, currentChar) =>  (previousResult, currentChar) match {
-        case(Success(ParserResult(parsedElement, notConsumed)), _) =>
-          makePartialResult(new char(currentChar).apply(notConsumed), parsedElement, input)
-        case _ => previousResult
-      }
-    }
+    if((headString zip input).forall{ case (expected, current) => expected == current })
+      Success(ParserResult(headString, input.slice(headString.length, input.length)))
+    else
+      Failure(new NotTheRightStringException(headString, input))
   }
-
-  def makePartialResult(result : Try[ParserResult[Char]], previousParsedElement: String, input: String) :
-    Try[ParserResult[String]] = {
-      result match {
-        case(Success(ParserResult(parsedElement, notConsumed))) => Success(ParserResult(previousParsedElement + parsedElement.toString, notConsumed))
-        case _ => Failure(new NotTheRightStringException(headString, input))
-      }
-  }
-
 }
