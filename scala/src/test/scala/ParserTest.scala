@@ -139,11 +139,11 @@ class ParserTest extends FreeSpec with Matchers {
 
       "<|>" - {
 
-        "con dos char parser's deberia devolver lo que el primero, si este puede parsear" - {
+        "con dos char parser's deberia devolver lo que el primero, si este puede parsear" in {
           assertParserSucceededWithResult((char('t') <|> char('c'))("test"), ('t', "est"))
         }
 
-        "con dos char parser's deberia devolver lo que el segundo, si el primero no puede parsear" - {
+        "con dos char parser's deberia devolver lo que el segundo, si el primero no puede parsear" in {
           assertParserSucceededWithResult((char('c') <|> char('h'))("helado"), ('h', "elado"))
         }
 
