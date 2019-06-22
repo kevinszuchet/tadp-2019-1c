@@ -130,7 +130,20 @@ class ParserTest extends FreeSpec with Matchers {
       "deberia fallar cuando el string es holgado" in {
         assertNotTheRightStringException(string("hola")("holgado").get)
       }
+    }
 
+    "Concatenación de <|>" - {
+      "Cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
+        assertParserSucceededWithResult((anyChar <|> anyChar <|> anyChar)("hola"), new ParserOutput('h', "ola"))
+      }
+      "Al concatenar dos <|> con anycChar(c), digit y char(h) con input hola devuelve (h, ola)" in {
+        assertParserSucceededWithResult((char('c') <|> digit <|> char('h'))("hola"), new ParserOutput('h', "ola"))
+      }
+
+      "Al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
+        assertNotFoundCharacter((char('c') <|> digit <|> char('s'))("hola").get)
+      }
     }
   }
+  
 }
