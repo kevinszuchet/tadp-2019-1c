@@ -25,7 +25,6 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
 
-// TODO refactor para dejar todos inline (excepto string que no calienta). Todos haces casi lo mismo (ver transform)
 case class char(char: Char) extends Parser[Char](
   input => anyChar(input).filter(_._1 == char)
     .orElse(Failure(new CharacterNotFoundException(char, input)))
