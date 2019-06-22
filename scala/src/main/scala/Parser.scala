@@ -2,19 +2,19 @@ import scala.util.{Failure, Success, Try}
 
 object ParsersTypes {
   //(parsedElement, notConsumed)
-  type ParserOutput[T] = (T, String)
-  type ParserResult[T] = Try[ParserOutput[T]]
+  type ParserOutput[+T] = (T, String)
+  type ParserResult[+T] = Try[ParserOutput[T]]
 }
 import ParsersTypes._
 
-class Parser[T](criterion: String => ParserResult[T]) {
+class Parser[+T](criterion: String => ParserResult[T]) {
   def parseIfNotEmpty(input: String): ParserResult[T] =
     if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
 
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
 
-  def <|>(anotherParser: Parser[T]) : Parser[T] =
-    new Parser[T](
+  def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] =
+    new Parser[U](
       input =>
         this(input) match {
           case Success(parserResult) => Success(parserResult)
