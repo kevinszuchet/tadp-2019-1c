@@ -1,13 +1,14 @@
 import scala.util.{Failure, Success, Try}
 
-object ParsersTypes {
+object ParserTypes {
   //(parsedElement, notConsumed)
   type ParserOutput[+T] = (T, String)
   type ParserResult[+T] = Try[ParserOutput[T]]
+  type ParserType[+T] = String => ParserResult[T]
 }
-import ParsersTypes._
+import ParserTypes._
 
-class Parser[+T](criterion: String => ParserResult[T]) {
+class Parser[+T](criterion: ParserType[T]) {
   def parseIfNotEmpty(input: String): ParserResult[T] =
     if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
 
@@ -52,7 +53,6 @@ case object alphaNum extends Parser[Char](
   input => (letter <|> digit)(input)
     .orElse(Failure(new NotAnAlphaNumException(input)))
 )
-
 
 case class string(string: String) extends Parser[String](
   input =>
