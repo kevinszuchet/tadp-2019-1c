@@ -176,6 +176,10 @@ class ParserTest extends FreeSpec with Matchers {
           "al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
             assertNotFoundCharacter((char('c') <|> digit <|> char('s')) ("hola").get)
           }
+
+          "al concatenar dos <|> con tres parsers de distintos tipos, " in {
+            assertParserSucceededWithResult((anyChar <|> void <|> string("hola"))("hola"), ('h', "ola"))
+          }
         }
       }
 
