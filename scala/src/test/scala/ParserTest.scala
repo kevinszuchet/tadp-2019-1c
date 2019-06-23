@@ -248,6 +248,14 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
       }
+      "*" - {
+        "El resultado debería ser una lista vacia ya que no pudo parcear ningun caracter" in {
+          assertParserSucceededWithResult(char('a')*("hola"), (List(), "hola"))
+        }
+        "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados" in {
+          assertParserSucceededWithResult(char('a')*("aabb"), (List('a', 'a'), "bb"))
+        }
+      }
 
     }
 

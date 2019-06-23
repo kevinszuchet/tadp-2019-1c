@@ -43,9 +43,17 @@ class Parser[T](criterion: String => ParserResult[T]) {
     this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
   )
 
-  def opt = new Parser[Option[T]](
+  def opt: Parser[Option[T]] = new Parser[Option[T]](
     input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try((None, input)))
   )
+
+  def * : Parser[List[T]] = new Parser[List[T]](input => {
+    this (input) match {
+      case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
+      case Failure(exception: ParserException) => Try((List(), exception.intput))
+      case Failure(anotherException) => Failure(anotherException)
+    }
+  })
 
 }
 
