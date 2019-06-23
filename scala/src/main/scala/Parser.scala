@@ -13,10 +13,10 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
 
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
-
+  
   def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
 
-  def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
+  def <>[U >: T](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
         case Success((parsedElement, notConsumed))
           => anotherParser(notConsumed).map(parserOutput => ( (parsedElement, parserOutput._1), parserOutput._2))
@@ -24,14 +24,14 @@ class Parser[+T](criterion: String => ParserResult[T]) {
       }
   )
 
-  def ~>(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
+  def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](
     this(_) match {
       case Success((parsedElement, notConsumed)) => anotherParser(notConsumed)
       case Failure(exception) => Failure(exception)
     }
   )
 
-  def <~(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
+  def <~[U >: T](anotherParser: Parser[U]): Parser[T] = new Parser[T](
     this(_) match {
       case Success((parsedElement, notConsumed))
         => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
