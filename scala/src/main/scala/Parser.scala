@@ -26,7 +26,7 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
   def ~>(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
     this(_) match {
-      case Success((parsedElement, notConsumed)) => anotherParser(notConsumed)
+      case Success((_, notConsumed)) => anotherParser(notConsumed)
       case Failure(exception) => Failure(exception)
     }
   )
