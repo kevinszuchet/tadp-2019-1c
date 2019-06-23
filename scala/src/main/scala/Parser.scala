@@ -21,6 +21,12 @@ class Parser[+T](criterion: String => ParserResult[T]) {
           case _ => anotherParser(input)
         }
     )
+
+  def <>[U >: T](anotherParser: Parser[U]): Parser[(T, U)] = ???
+
+  def ~>[U](anotherParser: Parser[U]): Parser[U] = ???
+
+  def <~[U >: T](anotherParser: Parser[U]): Parser[T] = ???
 }
 
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
