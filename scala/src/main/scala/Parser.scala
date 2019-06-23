@@ -16,7 +16,7 @@ class Parser[+T](criterion: ParserType[T]) {
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
   
   def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
-
+  
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
         case Success((parsedElement, notConsumed))
