@@ -249,9 +249,8 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(satisfiesChar("poroto"), ('p', "oroto"))
         }
 
-        "" in {
-          val condition = (string: String) => string == "pelota"
-          val parser = string("pelota").satisfies(condition)
+        "parsea correctamente si el resultado del strin cumple la condicion" in {
+          val parser = string("pelota").satisfies(string => string == "pelota")
           assertParserSucceededWithResult(parser("pelotadefutbol"), ("pelota", "defutbol"))
         }
       }
