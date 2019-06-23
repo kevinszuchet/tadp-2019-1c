@@ -4,8 +4,8 @@ object ParserTypes {
   //(parsedElement, notConsumed)
   type ParserOutput[+T] = (T, String)
   type ParserResult[+T] = Try[ParserOutput[T]]
+  type ParserCondition[+T] = T => Boolean
   type ParserType[+T] = String => ParserResult[T]
-  type ParserCondition[T] = T => Boolean
 }
 import ParserTypes._
 
@@ -17,7 +17,7 @@ class Parser[+T](criterion: ParserType[T]) {
   
   def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
 
-  def <>[U >: T](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
+  def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
         case Success((parsedElement, notConsumed))
           => anotherParser(notConsumed).map(parserOutput => ( (parsedElement, parserOutput._1), parserOutput._2))
@@ -32,7 +32,7 @@ class Parser[+T](criterion: ParserType[T]) {
     }
   )
 
-  def <~[U >: T](anotherParser: Parser[U]): Parser[T] = new Parser[T](
+  def <~[U](anotherParser: Parser[U]): Parser[T] = new Parser[T](
     this(_) match {
       case Success((parsedElement, notConsumed))
         => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
