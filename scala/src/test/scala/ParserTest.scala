@@ -243,6 +243,17 @@ class ParserTest extends FreeSpec with Matchers {
         "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
           assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
         }
+
+        "parsea correctamente si el resultado del char parser cumple la condicion" in {
+          val satisfiesChar = char('p').satisfies(p => p.equals('p'))
+          assertParserSucceededWithResult(satisfiesChar("poroto"), ('p', "oroto"))
+        }
+
+        "" in {
+          val condition = (string: String) => string == "pelota"
+          val parser = string("pelota").satisfies(condition)
+          assertParserSucceededWithResult(parser("pelotadefutbol"), ("pelota", "defutbol"))
+        }
       }
       "opt" - {
         "precedencia parsea exitosamente las palabras infija y fija" in {

@@ -3,8 +3,8 @@ import scala.util.{Failure, Success, Try}
 object ParserTypes {
   //(parsedElement, notConsumed)
   type ParserOutput[+T] = (T, String)
-  type ParserResult[+T] = Try[ParserOutput[T]]
-  type ParserType[+T] = String => ParserResult[T]
+  type ParserResult[T] = Try[ParserOutput[T]]
+  type ParserType[T] = String => ParserResult[T]
   type ParserCondition[T] = T => Boolean
 }
 import ParserTypes._
@@ -16,7 +16,7 @@ class Parser[+T](criterion: ParserType[T]) {
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
   
   def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
-  
+
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
         case Success((parsedElement, notConsumed))
@@ -27,7 +27,7 @@ class Parser[+T](criterion: ParserType[T]) {
 
   def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](
     this(_) match {
-      case Success((parsedElement, notConsumed)) => anotherParser(notConsumed)
+      case Success((_, notConsumed)) => anotherParser(notConsumed)
       case Failure(exception) => Failure(exception)
     }
   )
@@ -40,7 +40,7 @@ class Parser[+T](criterion: ParserType[T]) {
     }
   )
 
-  def satisfies[U >: T](condition: ParserCondition[U])= new Parser[U](
+  def satisfies[U >: T](condition: ParserCondition[U])= new Parser[T](
     this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
   )
 
