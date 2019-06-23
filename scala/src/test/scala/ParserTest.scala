@@ -214,7 +214,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertNotFoundCharacter((char('z') ~> digit)("test").get)
         }
 
-        "si falla el segundo parser deberia devolver el error del primero" in {
+        "si falla el segundo parser deberia devolver el error del segundo" in {
           assertNotADigit((char('t') ~> digit)("test").get)
         }
       }
