@@ -170,6 +170,66 @@ class ParserTest extends FreeSpec with Matchers {
           }
         }
       }
+
+      "<>" - {
+        "deberia fallar cuando el string es vacio" in {
+          assertEmptyString((char('t') <> char('e'))("").get)
+        }
+
+        "con dos char parser's deberia devolver una tupla con los valores del primero y el segundo y lo no parseado, si ambos pueden parsear" in {
+          assertParserSucceededWithResult((char('t') <> char('e'))("test"), (('t', 'e'), "st"))
+        }
+
+        "con dos parser's deberia devolver una tupla con los elementos parseados y el resto no parseado, si ambos pueden parsear" in {
+          assertParserSucceededWithResult((char('t') <> digit)("t3st"), (('t', '3'), "st"))
+        }
+
+        "si falla el primer parser deberia devolver el error del primero" in {
+          assertNotFoundCharacter((char('z') <> digit)("test").get)
+        }
+
+        "si falla el segundo parser deberia devolver el error del primero" in {
+          assertNotADigit((char('t') <> digit)("test").get)
+        }
+      }
+
+      "~>" - {
+        "deberia fallar cuando el string es vacio" in {
+          assertEmptyString((char('t') ~> char('e'))("").get)
+        }
+
+        "con dos parser's deberia devolver el resultado esperado para el segundo parser, si ambos pueden parsear" in {
+          assertParserSucceededWithResult((char('t') ~> digit)("t3st"), ('3', "st"))
+        }
+
+        "si falla el primer parser deberia devolver el error del primero" in {
+          assertNotFoundCharacter((char('z') ~> digit)("test").get)
+        }
+
+        "si falla el segundo parser deberia devolver el error del primero" in {
+          assertNotADigit((char('t') ~> digit)("test").get)
+        }
+      }
+
+      "<~" - {
+        "deberia fallar cuando el string es vacio" in {
+          assertEmptyString((char('t') <~ char('e'))("").get)
+        }
+
+        "con dos parser's deberia devolver el elemento parseado por el primer parser y lo no consumido por el segundo, si ambos pueden parsear" in {
+          assertParserSucceededWithResult((char('t') <~ digit)("t3st"), ('t', "st"))
+        }
+
+        "si falla el primer parser deberia devolver el error del primero" in {
+          assertNotFoundCharacter((char('z') <~ digit)("test").get)
+        }
+
+        "si falla el segundo parser deberia devolver el error del primero" in {
+          assertNotADigit((char('t') <~ digit)("test").get)
+        }
+      }
+
+
     }
   }
 }
