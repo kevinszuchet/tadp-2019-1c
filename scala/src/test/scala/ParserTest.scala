@@ -241,10 +241,12 @@ class ParserTest extends FreeSpec with Matchers {
         }
       }
       "opt" - {
-        val talVezIn = string("in").opt
-        // precedencia parsea exitosamente las palabras "infija" y "fija"
-        val precedencia = talVezIn <> string("fija")
-        assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
+        "precedencia parsea exitosamente las palabras infija y fija" in {
+          val talVezIn = string("in").opt
+          val precedencia = talVezIn <> string("fija")
+          assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
+          assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
+        }
       }
 
     }
