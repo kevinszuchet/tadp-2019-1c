@@ -146,7 +146,6 @@ class ParserTest extends FreeSpec with Matchers {
     "Combinators" - {
 
       "<|>" - {
-
         "con dos char parser's deberia devolver lo que el primero, si este puede parsear" in {
           assertParserSucceededWithResult((char('t') <|> char('c'))("test"), ('t', "est"))
         }
@@ -160,7 +159,6 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "Concatenación de <|>" - {
-
           "cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
             assertParserSucceededWithResult((anyChar <|> anyChar <|> anyChar) ("hola"), ('h', "ola"))
           }
@@ -214,7 +212,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertNotFoundCharacter((char('z') ~> digit)("test").get)
         }
 
-        "si falla el segundo parser deberia devolver el error del primero" in {
+        "si falla el segundo parser deberia devolver el error del segundo" in {
           assertNotADigit((char('t') ~> digit)("test").get)
         }
       }
@@ -254,6 +252,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(parser("pelotadefutbol"), ("pelota", "defutbol"))
         }
       }
+
       "opt" - {
         "precedencia parsea exitosamente las palabras infija y fija" in {
           val talVezIn = string("in").opt
@@ -262,9 +261,6 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
       }
-
     }
-
-
   }
 }
