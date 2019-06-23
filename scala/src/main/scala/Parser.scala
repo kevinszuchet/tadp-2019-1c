@@ -60,7 +60,7 @@ class Parser[T](criterion: String => ParserResult[T]) {
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
 
 case class char(char: Char) extends Parser[Char](
-  input => anyChar(input).filter(_._1 == char)
+  input => anyChar.satisfies(parsed => parsed == char)(input)
     .orElse(Failure(new CharacterNotFoundException(char, input)))
 )
 
