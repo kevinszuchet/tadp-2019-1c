@@ -4,6 +4,7 @@ object ParsersTypes {
   //(parsedElement, notConsumed)
   type ParserOutput[T] = (T, String)
   type ParserResult[T] = Try[ParserOutput[T]]
+  type ParserCondition[T] = T => Boolean
 }
 import ParsersTypes._
 
@@ -36,6 +37,10 @@ class Parser[T](criterion: String => ParserResult[T]) {
         => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
       case Failure(exception) => Failure(exception)
     }
+  )
+
+  def satisfies(condition: ParserCondition[T])= new Parser[T](
+    this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
   )
 
 }

@@ -32,6 +32,10 @@ class ParserTest extends FreeSpec with Matchers {
     assertThrows[NotTheRightStringException](actualResult)
   }
 
+  def assertNotSatisfiesException[T](actualResult: ⇒ T)= {
+    assertThrows[NotSatisfiesException[T]](actualResult)
+  }
+
   "Parsers" - {
 
     "Basic parsers" - {
@@ -228,8 +232,14 @@ class ParserTest extends FreeSpec with Matchers {
           assertNotADigit((char('t') <~ digit)("test").get)
         }
       }
-
-
     }
+
+    "Parsers2" - {
+      "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
+        assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
+      }
+    }
+
+
   }
 }
