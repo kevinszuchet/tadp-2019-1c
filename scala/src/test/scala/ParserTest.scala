@@ -235,9 +235,18 @@ class ParserTest extends FreeSpec with Matchers {
     }
 
     "Parsers2" - {
-      "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
-        assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
+      "satisfies" - {
+        "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
+          assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
+        }
       }
+      "opt" - {
+        val talVezIn = string("in").opt
+        // precedencia parsea exitosamente las palabras "infija" y "fija"
+        val precedencia = talVezIn <> string("fija")
+        assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
+      }
+
     }
 
 
