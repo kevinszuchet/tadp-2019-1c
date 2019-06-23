@@ -40,12 +40,12 @@ class Parser[+T](criterion: ParserType[T]) {
     }
   )
 
-  def satisfies[U >: T](condition: ParserCondition[U])= new Parser[T](
+  def satisfies[U >: T](condition: ParserCondition[U]) = new Parser[T](
     this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
   )
 
   def opt = new Parser[Option[T]](
-    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try((None, input)))
+    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try(None, input))
   )
 }
 
