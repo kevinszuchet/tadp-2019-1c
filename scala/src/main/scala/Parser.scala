@@ -49,7 +49,12 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
   def * : Parser[List[T]] = new Parser[List[T]]( input =>
     this(input) match {
-      case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
+      case Success((parsedElement, notConsumed)) => {
+        if (!notConsumed.isEmpty)
+          this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
+        else
+          Success((List(parsedElement), notConsumed))
+      }
       case Failure(_) => Success((List(), input))
     }
   )
