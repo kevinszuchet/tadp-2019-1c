@@ -14,24 +14,24 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
   def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
 
-  def <|>(anotherParser: Parser[T]) : Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
+  def <|>(anotherParser: Parser[T]): Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
 
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_) match {
         case Success((parsedElement, notConsumed))
-          => anotherParser(notConsumed).map(parserOutput => ( (parsedElement, parserOutput._1), parserOutput._2))
+          => anotherParser(notConsumed).map(parserOutput => ((parsedElement, parserOutput._1), parserOutput._2))
         case Failure(exception) => Failure(exception)
       }
   )
 
-  def ~>(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
+  def ~>(anotherParser: Parser[T]): Parser[T] = new Parser[T](
     this(_) match {
       case Success((_, notConsumed)) => anotherParser(notConsumed)
       case Failure(exception) => Failure(exception)
     }
   )
 
-  def <~(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
+  def <~(anotherParser: Parser[T]): Parser[T] = new Parser[T](
     this(_) match {
       case Success((parsedElement, notConsumed)) =>
         anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
@@ -39,33 +39,32 @@ class Parser[T](criterion: String => ParserResult[T]) {
     }
   )
 
-  def satisfies(condition: ParserCondition[T])= new Parser[T]( input =>
+  def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
     this(input).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition, input)))
   )
 
   def opt: Parser[Option[T]] = new Parser[Option[T]](
-    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try((None, input)))
+    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try(None, input))
   )
 
   def * : Parser[List[T]] = new Parser[List[T]]( input =>
     this(input) match {
       case Success((parsedElement, notConsumed)) => {
-        if (!notConsumed.isEmpty)
-          this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
+        if (notConsumed.isEmpty)
+          Success(List(parsedElement), notConsumed)
         else
-          Success((List(parsedElement), notConsumed))
+          this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) }
       }
-      case Failure(_) => Success((List(), input))
+      case Failure(_) => Success(List(), input)
     }
   )
 
   def + = new Parser[List[T]](
     this(_) match {
-      case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
+      case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) }
       case Failure(exception) => Failure(exception)
     }
   )
-
 }
 
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
