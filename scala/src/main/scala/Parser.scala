@@ -59,22 +59,17 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
 case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
 
-case class char(char: Char) extends Parser[Char](
-  input => anyChar.satisfies(parsed => parsed == char)(input)
-    .orElse(Failure(new CharacterNotFoundException(char, input)))
-)
+class anyCharWithCondition(condition: ParserCondition[Char], exception: String => Throwable) extends Parser[Char](input =>
+  anyChar.satisfies(condition)(input)
+    .orElse(Failure(exception(input))))
+
+case class char(char: Char) extends anyCharWithCondition(parsed => parsed == char, new CharacterNotFoundException(char, _))
 
 case object void extends Parser[Unit](input => Success((), input.tail))
 
-case object letter extends Parser[Char](
-  input => anyChar(input).filter(_._1.isLetter)
-    .orElse(Failure(new NotALetterException(input)))
-)
+case object letter extends anyCharWithCondition(_.isLetter, new NotALetterException(_))
 
-case object digit extends Parser[Char](
-  input => anyChar(input).filter(_._1.isDigit)
-    .orElse(Failure(new NotADigitException(input)))
-)
+case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException(_))
 
 case object alphaNum extends Parser[Char](
   input => (letter <|> digit)(input)
