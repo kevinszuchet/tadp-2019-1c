@@ -249,14 +249,21 @@ class ParserTest extends FreeSpec with Matchers {
         }
       }
       "*" - {
-        "El resultado debería ser una lista vacia ya que no pudo parcear ningun caracter" in {
+        "El resultado debería ser una lista vacia ya que no pudo parcear 0 veces" in {
           assertParserSucceededWithResult(char('a')*("hola"), (List(), "hola"))
         }
         "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados" in {
           assertParserSucceededWithResult(char('a')*("aabb"), (List('a', 'a'), "bb"))
         }
       }
-
+      "+" - {
+        "El resultado debería ser una lista vacia ya que no pudo parcear ni una sola vez" in {
+          assertNotFoundCharacter( (char('a')+)("hola").get )
+        }
+        "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados" in {
+          assertParserSucceededWithResult((char('a')+)("aabb"), (List('a', 'a'), "bb"))
+        }
+      }
     }
 
 
