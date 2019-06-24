@@ -33,25 +33,24 @@ class Parser[T](criterion: String => ParserResult[T]) {
 
   def <~(anotherParser: Parser[T]) : Parser[T] = new Parser[T](
     this(_) match {
-      case Success((parsedElement, notConsumed))
-        => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
+      case Success((parsedElement, notConsumed)) =>
+        anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
       case Failure(exception) => Failure(exception)
     }
   )
 
-  def satisfies(condition: ParserCondition[T])= new Parser[T](
-    this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
+  def satisfies(condition: ParserCondition[T])= new Parser[T]( input =>
+    this(input).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition, input)))
   )
 
   def opt: Parser[Option[T]] = new Parser[Option[T]](
     input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try((None, input)))
   )
 
-  def * : Parser[List[T]] = new Parser[List[T]](
-    this(_) match {
+  def * : Parser[List[T]] = new Parser[List[T]]( input =>
+    this(input) match {
       case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (e, n) => (parsedElement :: e, n) }
-      case Failure(exception: ParserException) => Try((List(), exception.intput))
-      case Failure(anotherException) => Failure(anotherException)
+      case Failure(_) => Success((List(), input))
     }
   )
 
