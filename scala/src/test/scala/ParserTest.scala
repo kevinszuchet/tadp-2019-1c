@@ -217,7 +217,7 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "puede parsear con 3 parsers" in {
-          assertParserSucceededWithResult((char('t') <> char('e') <> char('s'))("test"), (('t', 'e', 's'), "t"))
+          assertParserSucceededWithResult((char('t') <> char('e') <> char('s'))("test"), ((('t', 'e'), 's'), "t"))
         }
       }
 
