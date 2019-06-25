@@ -148,7 +148,6 @@ class ParserTest extends FreeSpec with Matchers {
     "Combinators" - {
 
       "<|>" - {
-
         "con dos char parser's deberia devolver lo que el primero, si este puede parsear" in {
           assertParserSucceededWithResult((char('t') <|> char('c'))("test"), ('t', "est"))
         }
@@ -156,14 +155,16 @@ class ParserTest extends FreeSpec with Matchers {
         "con dos char parser's deberia devolver lo que el segundo, si el primero no puede parsear" in {
           assertParserSucceededWithResult((char('c') <|> char('h'))("helado"), ('h', "elado"))
         }
-
+        
+        "se puede aplicar con dos parser's de distinto tipo" in {
+          assertParserSucceededWithResult((anyChar <|> void)("input"), ('i', "nput"))
+        }
+        
         "con dos char parser's deberia fallar si ninguno encuentra el char" in {
           assertNotFoundCharacter((char('c') <|> char('h'))("messi").get)
         }
-
-
+        
         "Concatenación de <|>" - {
-
           "cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
             assertParserSucceededWithResult((anyChar <|> anyChar <|> anyChar) ("hola"), ('h', "ola"))
           }
@@ -179,7 +180,11 @@ class ParserTest extends FreeSpec with Matchers {
           "al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
             assertNotFoundCharacter((char('c') <|> digit <|> char('s')) ("hola").get)
           }
-
+          
+          "al concatenar dos <|> con tres parsers de distintos tipos, " in {
+            assertParserSucceededWithResult((anyChar <|> void <|> string("hola"))("hola"), ('h', "ola"))
+          }
+          
           "al concatenar dos <|> con un exito en el segundo de los parsers, ese es el resultado (precedencia de izquiera a derecha)" in {
             assertParserSucceededWithResult((char('h') <|> digit <|> char('c')) ("1hola"), ('1', "hola"))
           }
@@ -229,7 +234,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertNotFoundCharacter((char('z') ~> digit)("test").get)
         }
 
-        "si falla el segundo parser deberia devolver el error del primero" in {
+        "si falla el segundo parser deberia devolver el error del segundo" in {
           assertNotADigit((char('t') ~> digit)("test").get)
         }
       }
@@ -258,6 +263,17 @@ class ParserTest extends FreeSpec with Matchers {
         "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
           assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
         }
+        
+        "parsea correctamente si el resultado del char parser cumple la condicion" in {
+          val satisfiesChar = char('p').satisfies(p => p.equals('p'))
+          assertParserSucceededWithResult(satisfiesChar("poroto"), ('p', "oroto"))
+        }
+
+        "parsea correctamente si el resultado del strin cumple la condicion" in {
+          val parser = string("pelota").satisfies(string => string == "pelota")
+          assertParserSucceededWithResult(parser("pelotadefutbol"), ("pelota", "defutbol"))
+        }
+        
         "deberia funcionar si se cumple la condicion y se puede parsear" in {
           assertParserSucceededWithResult( char('a').satisfies(parsedElement => parsedElement.equals('a'))("asd"), ('a',"sd"))
         }

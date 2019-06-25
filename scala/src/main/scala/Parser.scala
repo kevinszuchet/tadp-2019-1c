@@ -1,30 +1,31 @@
 import scala.util.{Failure, Success, Try}
 
-object ParsersTypes {
+object ParserTypes {
   //(parsedElement, notConsumed)
-  type ParserOutput[T] = (T, String)
+  type ParserOutput[+T] = (T, String)
   type ParserResult[T] = Try[ParserOutput[T]]
+  type ParserType[T] = String => ParserResult[T]
   type ParserCondition[T] = T => Boolean
 }
-import ParsersTypes._
+import ParserTypes._
 
 class Parser[T](criterion: String => ParserResult[T]) {
   def apply(input: String): ParserResult[T] = criterion(input)
 
-  def <|>(anotherParser: Parser[T]): Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
-
+  def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
+  
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
     this(_).flatMap { case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => ((parsedElement, parserOutput._1), parserOutput._2)) }
   )
 
-  def ~>(anotherParser: Parser[T]): Parser[T] = new Parser[T](
+  def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](  
     this(_).flatMap { case (_, notConsumed) => anotherParser(notConsumed) }
   )
 
-  def <~(anotherParser: Parser[T]): Parser[T] = new Parser[T](
+  def <~[U](anotherParser: Parser[U]): Parser[T] = new Parser[T](
     this(_).flatMap{ case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2)) }
   )
-
+  
   def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
     this(input).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition, input)))
   )

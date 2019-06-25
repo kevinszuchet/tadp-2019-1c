@@ -1,4 +1,4 @@
-import ParsersTypes._
+import ParserTypes._
 
 class EmptyStringException extends Exception
 class CharacterNotFoundException(char: Char, input: String) extends Exception//(s"The character '$char' was not found in $input")
