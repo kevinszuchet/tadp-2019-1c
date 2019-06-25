@@ -83,7 +83,11 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(letter("total"), ('t', "otal"))
         }
 
-        "deberia fallar cuando el string abc123" in {
+        "deberia devolver success con ParserResult(T, ) cuando el string es T" in {
+          assertParserSucceededWithResult(letter("T"), ('T', ""))
+        }
+
+        "deberia fallar cuando el string 123abc" in {
           assertNotALetter(letter("123abc").get)
         }
 
@@ -155,6 +159,11 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult((char('c') <|> char('h'))("helado"), ('h', "elado"))
         }
 
+        "con dos char parser's deberia fallar si ninguno encuentra el char" in {
+          assertNotFoundCharacter((char('c') <|> char('h'))("messi").get)
+        }
+
+
         "Concatenación de <|>" - {
 
           "cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
@@ -171,6 +180,10 @@ class ParserTest extends FreeSpec with Matchers {
 
           "al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
             assertNotFoundCharacter((char('c') <|> digit <|> char('s')) ("hola").get)
+          }
+
+          "al concatenar dos <|> con un exito en el segundo de los parsers, ese es el resultado (precedencia de izquiera a derecha)" in {
+            assertParserSucceededWithResult((char('h') <|> digit <|> char('c')) ("1hola"), ('1', "hola"))
           }
         }
       }
