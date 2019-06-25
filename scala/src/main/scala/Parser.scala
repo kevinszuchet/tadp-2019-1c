@@ -37,12 +37,13 @@ class Parser[T](criterion: String => ParserResult[T]) {
   )
 
   def * : Parser[List[T]] = new Parser[List[T]]( input =>
-    this(input) match {
-      case Success((parsedElement, "")) => Success(List(parsedElement), "")
-      case Success((parsedElement, notConsumed))
-        => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) }
-      case Failure(_) => Success(List(), input)
-    }
+    this(input).transform(
+      {
+        case (parsedElement, "") => Success(List(parsedElement), "")
+        case (parsedElement, notConsumed) =>
+          this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } },
+      _ => Success(List(), input)
+    )
   )
 
   def + = new Parser[List[T]](
