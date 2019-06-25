@@ -9,10 +9,7 @@ object ParsersTypes {
 import ParsersTypes._
 
 class Parser[T](criterion: String => ParserResult[T]) {
-  def parseIfNotEmpty(input: String): ParserResult[T] =
-    if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
-
-  def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
+  def apply(input: String): ParserResult[T] = criterion(input)
 
   def <|>(anotherParser: Parser[T]): Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
 
@@ -64,21 +61,26 @@ class Parser[T](criterion: String => ParserResult[T]) {
   )
 }
 
-case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
+class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
+  override def apply(input: String): ParserResult[T] =
+    if (input.isEmpty) Failure(new EmptyStringException) else super.apply(input)
+}
 
-class anyCharWithCondition(condition: ParserCondition[Char], exception: String => Throwable) extends Parser[Char](input =>
+case object anyChar extends NonEmptyInputParser[Char](input => Success(input.head, input.tail))
+
+class anyCharWithCondition(condition: ParserCondition[Char], exception: String => Throwable) extends NonEmptyInputParser[Char](input =>
   anyChar.satisfies(condition)(input)
     .orElse(Failure(exception(input))))
 
 case class char(char: Char) extends anyCharWithCondition(parsed => parsed == char, new CharacterNotFoundException(char, _))
 
-case object void extends Parser[Unit](input => Success((), input.tail))
+case object void extends NonEmptyInputParser[Unit](input => Success((), input.tail))
 
 case object letter extends anyCharWithCondition(_.isLetter, new NotALetterException(_))
 
 case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException(_))
 
-case object alphaNum extends Parser[Char](
+case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input)
     .orElse(Failure(new NotAnAlphaNumException(input)))
 )
