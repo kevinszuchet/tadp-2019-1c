@@ -37,9 +37,7 @@ class ParserTest extends FreeSpec with Matchers {
   }
 
   "Parsers" - {
-
     "Basic parsers" - {
-
       "anyChar" - {
         "deberia devolver un success de ParserResult(h, ola) cuando el string es hola" in {
           assertParserSucceededWithResult(anyChar("hola"), ('h', "ola"))
@@ -83,7 +81,11 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(letter("total"), ('t', "otal"))
         }
 
-        "deberia fallar cuando el string abc123" in {
+        "deberia devolver success con ParserResult(T, ) cuando el string es T" in {
+          assertParserSucceededWithResult(letter("T"), ('T', ""))
+        }
+
+        "deberia fallar cuando el string 123abc" in {
           assertNotALetter(letter("123abc").get)
         }
 
@@ -155,6 +157,11 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult((char('c') <|> char('h'))("helado"), ('h', "elado"))
         }
 
+        "con dos char parser's deberia fallar si ninguno encuentra el char" in {
+          assertNotFoundCharacter((char('c') <|> char('h'))("messi").get)
+        }
+
+
         "Concatenación de <|>" - {
 
           "cuando se concatenan dos <|> con anyChar con input hola el resultado es (h, ola)" in {
@@ -171,6 +178,10 @@ class ParserTest extends FreeSpec with Matchers {
 
           "al concatenar dos <|> con tres parsers que no parsean el input hola falla" in {
             assertNotFoundCharacter((char('c') <|> digit <|> char('s')) ("hola").get)
+          }
+
+          "al concatenar dos <|> con un exito en el segundo de los parsers, ese es el resultado (precedencia de izquiera a derecha)" in {
+            assertParserSucceededWithResult((char('h') <|> digit <|> char('c')) ("1hola"), ('1', "hola"))
           }
         }
       }
@@ -194,6 +205,14 @@ class ParserTest extends FreeSpec with Matchers {
 
         "si falla el segundo parser deberia devolver el error del primero" in {
           assertNotADigit((char('t') <> digit)("test").get)
+        }
+
+        "si consumo todos los caracteres falla con un anyChar segundo" in {
+          assertEmptyString((string("test") <> anyChar)("test").get)
+        }
+
+        "puede parsear con 3 parsers" in {
+          assertParserSucceededWithResult((char('t') <> char('e') <> char('s'))("test"), (('t', 'e', 's'), "t"))
         }
       }
 
@@ -239,7 +258,11 @@ class ParserTest extends FreeSpec with Matchers {
         "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
           assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
         }
+        "deberia funcionar si se cumple la condicion y se puede parsear" in {
+          assertParserSucceededWithResult( char('a').satisfies(parsedElement => parsedElement.equals('a'))("asd"), ('a',"sd"))
+        }
       }
+      
       "opt" - {
         "precedencia parsea exitosamente las palabras infija y fija" in {
           val talVezIn = string("in").opt
@@ -247,11 +270,18 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
-
+        
         "no puede parsear un string vacio" in {
+          // Este estaba en fix-kleen
           assertParserSucceededWithResult(anyChar.opt(""), (None, ""))
         }
+        
+        "si un parser opt falla, no consume caracteres" in {
+          // Este estaba en parser-combinators
+          assertParserSucceededWithResult(char('a').opt("test"),(None,"test"))
+        }
       }
+      
       "*" - {
         "El resultado debería ser una lista vacia ya que no pudo parsear ni una sola vez" in {
           assertParserSucceededWithResult(char('a')*("hola"), (List(), "hola"))
@@ -267,6 +297,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(char('a')*(""), (List(), ""))
         }
       }
+      
       "+" - {
         "El resultado debería ser Failure(CharacterNotFound) ya que no pudo parcear ni una sola vez" in {
           assertNotFoundCharacter( (char('a')+)("hola").get )
@@ -279,7 +310,5 @@ class ParserTest extends FreeSpec with Matchers {
         }
       }
     }
-
-
   }
 }
