@@ -247,6 +247,10 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
+
+        "no puede parsear un string vacio" in {
+          assertEmptyString(anyChar.opt("").get)
+        }
       }
       "*" - {
         "El resultado debería ser una lista vacia ya que no pudo parsear ni una sola vez" in {
