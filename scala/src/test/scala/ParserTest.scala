@@ -87,7 +87,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(letter("T"), ('T', ""))
         }
 
-        "deberia fallar cuando el string abc123" in {
+        "deberia fallar cuando el string 123abc" in {
           assertNotALetter(letter("123abc").get)
         }
 
