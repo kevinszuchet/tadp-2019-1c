@@ -41,7 +41,7 @@ class Parser[T](criterion: String => ParserResult[T]) {
   )
 
   def opt: Parser[Option[T]] = new Parser[Option[T]](
-    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try(None, input))
+    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Success(None, input))
   )
 
   def * : Parser[List[T]] = new Parser[List[T]]( input =>
