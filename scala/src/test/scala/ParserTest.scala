@@ -37,9 +37,7 @@ class ParserTest extends FreeSpec with Matchers {
   }
 
   "Parsers" - {
-
     "Basic parsers" - {
-
       "anyChar" - {
         "deberia devolver un success de ParserResult(h, ola) cuando el string es hola" in {
           assertParserSucceededWithResult(anyChar("hola"), ('h', "ola"))
@@ -264,6 +262,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult( char('a').satisfies(parsedElement => parsedElement.equals('a'))("asd"), ('a',"sd"))
         }
       }
+      
       "opt" - {
         "precedencia parsea exitosamente las palabras infija y fija" in {
           val talVezIn = string("in").opt
@@ -271,14 +270,20 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
-
+        
+        "no puede parsear un string vacio" in {
+          // Este estaba en fix-kleen
+          assertParserSucceededWithResult(anyChar.opt(""), (None, ""))
+        }
+        
         "si un parser opt falla, no consume caracteres" in {
+          // Este estaba en parser-combinators
           assertParserSucceededWithResult(char('a').opt("test"),(None,"test"))
         }
-
       }
+      
       "*" - {
-        "El resultado debería ser una lista vacia ya que no pudo parcear 0 veces" in {
+        "El resultado debería ser una lista vacia ya que no pudo parsear ni una sola vez" in {
           assertParserSucceededWithResult(char('a')*("hola"), (List(), "hola"))
         }
         "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados" in {
@@ -287,9 +292,14 @@ class ParserTest extends FreeSpec with Matchers {
         "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados y nada en el sobrante" in {
           assertParserSucceededWithResult(char('a')*("aa"), (List('a', 'a'), ""))
         }
+
+        "al pasar un string vacio, deberia parsear una lista vacia ya que no puede parsear" in {
+          assertParserSucceededWithResult(char('a')*(""), (List(), ""))
+        }
       }
+      
       "+" - {
-        "El resultado debería ser una lista vacia ya que no pudo parcear ni una sola vez" in {
+        "El resultado debería ser Failure(CharacterNotFound) ya que no pudo parcear ni una sola vez" in {
           assertNotFoundCharacter( (char('a')+)("hola").get )
         }
         "El resultado debería ser una lista que contiene todos los valores que hayan sido parseados" in {
@@ -300,7 +310,5 @@ class ParserTest extends FreeSpec with Matchers {
         }
       }
     }
-
-
   }
 }
