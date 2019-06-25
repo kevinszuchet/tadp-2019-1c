@@ -249,7 +249,7 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "no puede parsear un string vacio" in {
-          assertEmptyString(anyChar.opt("").get)
+          assertParserSucceededWithResult(anyChar.opt(""), (None, ""))
         }
       }
       "*" - {
