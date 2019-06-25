@@ -208,6 +208,14 @@ class ParserTest extends FreeSpec with Matchers {
         "si falla el segundo parser deberia devolver el error del primero" in {
           assertNotADigit((char('t') <> digit)("test").get)
         }
+
+        "si consumo todos los caracteres falla con un anyChar segundo" in {
+          assertEmptyString((string("test") <> anyChar)("test").get)
+        }
+
+        "puede parsear con 3 parsers" in {
+          assertParserSucceededWithResult((char('t') <> char('e') <> char('s'))("test"), (('t', 'e', 's'), "t"))
+        }
       }
 
       "~>" - {
