@@ -260,6 +260,9 @@ class ParserTest extends FreeSpec with Matchers {
         "deberia fallar cuando no se cumple la condicion, si es que lo puede parsear" in {
           assertNotSatisfiesException( char('t').satisfies(parsedElement => parsedElement.equals('a'))("test").get )
         }
+        "deberia funcionar si se cumple la condicion y se puede parsear" in {
+          assertParserSucceededWithResult( char('a').satisfies(parsedElement => parsedElement.equals('a'))("asd"), ('a',"sd"))
+        }
       }
       "opt" - {
         "precedencia parsea exitosamente las palabras infija y fija" in {
@@ -268,6 +271,11 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(precedencia("fija"), ((None, "fija"), ""))
           assertParserSucceededWithResult(precedencia("infija"), ((Some("in"), "fija"), ""))
         }
+
+        "si un parser opt falla, no consume caracteres" in {
+          assertParserSucceededWithResult(char('a').opt("test"),(None,"test"))
+        }
+
       }
       "*" - {
         "El resultado debería ser una lista vacia ya que no pudo parcear 0 veces" in {
