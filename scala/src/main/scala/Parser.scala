@@ -17,26 +17,15 @@ class Parser[T](criterion: String => ParserResult[T]) {
   def <|>(anotherParser: Parser[T]): Parser[T] = new Parser[T](input => this(input).orElse(anotherParser(input)))
 
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
-    this(_) match {
-        case Success((parsedElement, notConsumed))
-          => anotherParser(notConsumed).map(parserOutput => ((parsedElement, parserOutput._1), parserOutput._2))
-        case Failure(exception) => Failure(exception)
-      }
+    this(_).flatMap { case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => ((parsedElement, parserOutput._1), parserOutput._2)) }
   )
 
   def ~>(anotherParser: Parser[T]): Parser[T] = new Parser[T](
-    this(_) match {
-      case Success((_, notConsumed)) => anotherParser(notConsumed)
-      case Failure(exception) => Failure(exception)
-    }
+    this(_).flatMap { case (_, notConsumed) => anotherParser(notConsumed) }
   )
 
   def <~(anotherParser: Parser[T]): Parser[T] = new Parser[T](
-    this(_) match {
-      case Success((parsedElement, notConsumed)) =>
-        anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
-      case Failure(exception) => Failure(exception)
-    }
+    this(_).flatMap{ case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2)) }
   )
 
   def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
@@ -57,10 +46,7 @@ class Parser[T](criterion: String => ParserResult[T]) {
   )
 
   def + = new Parser[List[T]](
-    this(_) match {
-      case Success((parsedElement, notConsumed)) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) }
-      case Failure(exception) => Failure(exception)
-    }
+    this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 }
 
