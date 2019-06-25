@@ -333,6 +333,19 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(char('a')+("aa"), (List('a', 'a'), ""))
         }
       }
+
+      "const" - {
+        "El resultado debería ser el valor constante que se le pasó a const, en vez de lo que devolvería el parser base, si es que lo puede parsear." in {
+          val trueParser = string("true").const(true)
+          assertParserSucceededWithResult(trueParser("truetest"), (true, "test"))
+        }
+
+        "El resultado debería ser Failure(NotTheRightStringException), si es que no lo puedo parsear." in {
+          val trueParser = string("true").const(true)
+          assertNotTheRightStringException( trueParser("test").get )
+        }
+      }
+
     }
   }
 }
