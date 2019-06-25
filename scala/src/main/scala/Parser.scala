@@ -9,66 +9,67 @@ object ParserTypes {
 }
 import ParserTypes._
 
-class Parser[+T](criterion: ParserType[T]) {
-  def parseIfNotEmpty(input: String): ParserResult[T] =
-    if (input.isEmpty) Failure(new EmptyStringException) else criterion(input)
+class Parser[T](criterion: String => ParserResult[T]) {
+  def apply(input: String): ParserResult[T] = criterion(input)
 
-  def apply(input: String): ParserResult[T] = parseIfNotEmpty(input)
-  
   def <|>[U >: T](anotherParser: Parser[U]) : Parser[U] = new Parser[U](input => this(input).orElse(anotherParser(input)))
-
+  
   def <>[U](anotherParser: Parser[U]): Parser[(T, U)] = new Parser[(T,U)](
-    this(_) match {
-        case Success((parsedElement, notConsumed))
-          => anotherParser(notConsumed).map(parserOutput => ( (parsedElement, parserOutput._1), parserOutput._2))
-        case Failure(exception) => Failure(exception)
-      }
+    this(_).flatMap { case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => ((parsedElement, parserOutput._1), parserOutput._2)) }
   )
 
-  def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](
-    this(_) match {
-      case Success((_, notConsumed)) => anotherParser(notConsumed)
-      case Failure(exception) => Failure(exception)
-    }
+  def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](  
+    this(_).flatMap { case (_, notConsumed) => anotherParser(notConsumed) }
   )
 
   def <~[U](anotherParser: Parser[U]): Parser[T] = new Parser[T](
-    this(_) match {
-      case Success((parsedElement, notConsumed))
-        => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2))
-      case Failure(exception) => Failure(exception)
-    }
+    this(_).flatMap{ case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2)) }
+  )
+  
+  def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
+    this(input).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition, input)))
   )
 
-  def satisfies(condition: ParserCondition[T]) = new Parser[T](
-    this(_).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition)))
+  def opt: Parser[Option[T]] = new Parser[Option[T]](
+    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Success(None, input))
   )
 
-  def opt = new Parser[Option[T]](
-    input => this(input).map{ case (parsedElement, notConsumed) => (Some(parsedElement), notConsumed) }.orElse(Try(None, input))
+  def * : Parser[List[T]] = new Parser[List[T]](input =>
+    this(input).transform(
+      {
+        case (parsedElement, "") => Success(List(parsedElement), "")
+        case (parsedElement, notConsumed) =>
+          this.*(notConsumed).map{ case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } 
+      },
+      _ => Success(List(), input)
+    )
+  )
+
+  def + = new Parser[List[T]](
+    this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 }
 
-case object anyChar extends Parser[Char](input => Success(input.head, input.tail))
+class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
+  override def apply(input: String): ParserResult[T] =
+    if (input.isEmpty) Failure(new EmptyStringException) else super.apply(input)
+}
 
-case class char(char: Char) extends Parser[Char](
-  input => anyChar(input).filter(_._1 == char)
-    .orElse(Failure(new CharacterNotFoundException(char, input)))
-)
+case object anyChar extends NonEmptyInputParser[Char](input => Success(input.head, input.tail))
 
-case object void extends Parser[Unit](input => Success((), input.tail))
+class anyCharWithCondition(condition: ParserCondition[Char], exception: String => Throwable) extends NonEmptyInputParser[Char](input =>
+  anyChar.satisfies(condition)(input)
+    .orElse(Failure(exception(input))))
 
-case object letter extends Parser[Char](
-  input => anyChar(input).filter(_._1.isLetter)
-    .orElse(Failure(new NotALetterException(input)))
-)
+case class char(char: Char) extends anyCharWithCondition(parsed => parsed == char, new CharacterNotFoundException(char, _))
 
-case object digit extends Parser[Char](
-  input => anyChar(input).filter(_._1.isDigit)
-    .orElse(Failure(new NotADigitException(input)))
-)
+case object void extends NonEmptyInputParser[Unit](input => Success((), input.tail))
 
-case object alphaNum extends Parser[Char](
+case object letter extends anyCharWithCondition(_.isLetter, new NotALetterException(_))
+
+case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException(_))
+
+case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input)
     .orElse(Failure(new NotAnAlphaNumException(input)))
 )
