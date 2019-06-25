@@ -127,20 +127,28 @@ class ParserTest extends FreeSpec with Matchers {
       }
 
       "string" - {
-        "deberia devolver success con ParserResult(hola, mundo!) cuando el string es hola mundo!" in {
+        "deberia devolver success con ParserResult(hola, mundo!) cuando el input es hola mundo!" in {
           assertParserSucceededWithResult(string("hola")("hola mundo!"), ("hola", " mundo!"))
         }
 
-        "deberia devolver success con ParserResult(hola, ) cuando el string es hola" in {
+        "deberia devolver success con ParserResult(hola, ) cuando el input es hola" in {
           assertParserSucceededWithResult(string("hola")("hola"), ("hola", ""))
         }
 
-        "deberia fallar cuando el string es hol" in {
+        "deberia fallar cuando el input es hol" in {
           assertNotTheRightStringException(string("hola")("hol").get)
         }
 
-        "deberia fallar cuando el string es holgado" in {
+        "deberia fallar cuando el input es holgado" in {
           assertNotTheRightStringException(string("hola")("holgado").get)
+        }
+
+        "deberia fallar cuando el input es vacio" in {
+          assertEmptyString(string("probando")("").get)
+        }
+
+        "deberia fallar cuando el input es vacio y el string es tambien vacio" in {
+          assertEmptyString(string("")("").get)
         }
       }
     }

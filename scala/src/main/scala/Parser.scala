@@ -72,7 +72,7 @@ case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
 )
 
-case class string(string: String) extends Parser[String](
+case class string(string: String) extends NonEmptyInputParser[String](
   input =>
     if (input.startsWith(string))
       Success(string, input.slice(string.length, input.length))
