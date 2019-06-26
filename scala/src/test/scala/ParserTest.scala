@@ -418,6 +418,10 @@ class ParserTest extends FreeSpec with Matchers {
         "al aplicar un parser de contenido string('test') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
           assertParserSucceededWithResult(string("hola").sepBy(string("chau"))("holachauholachauholachau"), (List("hola", "hola", "hola"), ""))
         }
+
+        "Al parsear 4356-1234 con el parser integer y el separador char(-) devería devolveer (List(4356, 1234), )" in {
+          assertParserSucceededWithResult(integer.sepBy(char('-'))("4356-1234"), (List(4356, 1234), ""))
+        }
       }
 
     }
