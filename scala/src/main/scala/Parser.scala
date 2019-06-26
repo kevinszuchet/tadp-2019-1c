@@ -48,15 +48,20 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
-  def sepBy[U](separator: Parser[U]) : Parser[List[T]] = new Parser(
-    (this <~ separator).*(_)
+  def sepBy[U](separator: Parser[U]) = new Parser(
+    (this <~ separator ).+.<>(this.opt)
+      .map{
+        case(list, Some(parsedElement)) =>  list :+ parsedElement
+        case(list, None) =>  list
+      }(_)
   )
 
-  def const[U](constantValue: U) = new Parser[U](input => this.map(_ => constantValue)(input))
+  def const[U](constantValue: U) = new Parser[U]( this.map(_ => constantValue)(_) )
 
   def map[U](mapper: T => U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
   )
+
 }
 
 class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
@@ -82,10 +87,8 @@ case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
 )
 case object integer extends Parser[Int] (
-  input => digit.+(input) match {
-    case Success((listOutput, "")) => Success(Integer.parseInt(listOutput.mkString("")), "")
-    case _ => Failure(new NotAnIntegerException(input))
-  }
+  input => digit.+.map{ case parsedList => parsedList.foldLeft ( 0 ) {(total, element) => total * 10 + (element.toString.toInt) } }(input)
+    .orElse(Failure(new NotAnIntegerException(input)))
 )
 case class string(string: String) extends NonEmptyInputParser[String](
   input =>
