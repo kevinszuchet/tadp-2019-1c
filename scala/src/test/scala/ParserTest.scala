@@ -35,6 +35,9 @@ class ParserTest extends FreeSpec with Matchers {
   def assertNotSatisfiesException[T](actualResult: ⇒ T)= {
     assertThrows[NotSatisfiesException[T]](actualResult)
   }
+  def assertNotAnInteger[T](actualResult: ⇒ T)= {
+    assertThrows[NotAnIntegerException](actualResult)
+  }
 
   "Parsers" - {
     "Basic parsers" - {
@@ -320,6 +323,9 @@ class ParserTest extends FreeSpec with Matchers {
         "al pasar un string vacio, deberia parsear una lista vacia ya que no puede parsear" in {
           assertParserSucceededWithResult(char('a')*(""), (List(), ""))
         }
+        "Al parsear el string 1234 devuelve List('1','2','3','4')" in {
+          assertParserSucceededWithResult(digit*("1234"), (List('1','2','3','4'), ""))
+        }
       }
       
       "+" - {
@@ -363,6 +369,27 @@ class ParserTest extends FreeSpec with Matchers {
           }
 
           assertParserSucceededWithResult(mapParser("probandomi amor por ti"), (("probando", 'm', "i amor por ti"), "i amor por ti"))
+        }
+      }
+
+      "integer" - {
+        "al parsear el string 1234 devuelve el Integer 1234" in {
+          assertParserSucceededWithResult(integer("1234"), (1234, ""))
+        }
+        "al parsear el string 9 devuelve el Integer 9" in {
+          assertParserSucceededWithResult(integer("9"), (9, ""))
+        }
+        "al parsear el string 12A34 falla" in {
+          assertNotAnInteger(integer("12A34").get)
+        }
+        "al parsear el string vacío falla" in {
+          assertNotAnInteger(integer("").get)
+        }
+        "al parsear el string 4232x falla" in {
+          assertNotAnInteger(integer("4232x").get)
+        }
+        "al parsear el string x4232 falla" in {
+          assertNotAnInteger(integer("x4232").get)
         }
       }
 

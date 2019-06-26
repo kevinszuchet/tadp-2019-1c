@@ -84,7 +84,12 @@ case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException
 case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
 )
-
+case object integer extends Parser[Int] (
+  input => (digit+(input)) match {
+    case Success((listOutput, "")) => Success(Integer.parseInt(listOutput.mkString("")), "")
+    case _ => Failure(new NotAnIntegerException(input))
+  }
+)
 case class string(string: String) extends NonEmptyInputParser[String](
   input =>
     if (input.startsWith(string))

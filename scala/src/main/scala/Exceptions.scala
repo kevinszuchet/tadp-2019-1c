@@ -7,3 +7,4 @@ class NotADigitException(input: String) extends Exception
 class NotAnAlphaNumException(input: String) extends Exception
 class NotTheRightStringException(expectedString : String, notConsumed: String) extends Exception// (s"Expected $expectedString... but got $currentString")
 class NotSatisfiesException[T](condition: ParserCondition[T], notConsumed: String) extends Exception
+class NotAnIntegerException(input: String) extends Exception
