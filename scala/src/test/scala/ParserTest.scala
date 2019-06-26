@@ -368,15 +368,37 @@ class ParserTest extends FreeSpec with Matchers {
 
       "sepBy" - {
         "al aplicar un parser de contenido anyChar y uno separador char(-), deberia devolver los caracteres que no son el separados" in {
-          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a-"), (List('h', 'o', 'l', 'a'), ""))
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a"), (List('h', 'o', 'l', 'a'), ""))
         }
 
-        "si llega un punto en que falta un separador, devuelve lo ultimo antes del separador faltante" in {
-          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a"), (List('h', 'o', 'l'), "a"))
+        "si llega un punto en que termina la secuencia con el separador, devuelve lo ultimo antes del separador faltante" in {
+          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-aaa"), (List('a', 'a', 'a', 'a'), "aa"))
         }
 
-        "al aplicar un parser de contenido string('test') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
-          assertParserSucceededWithResult(string("hola").sepBy(string("chau"))("holachauholachauholachau"), (List("hola", "hola", "hola"), ""))
+        "si llega un punto en que falla la secuencia con el separador, devuelve lo ultimo antes del separador faltante" in {
+          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "bbbb"))
+        }
+
+        "si la cadena termina con un separador, devuelve lo parseado hasta el ultimo separador" in {
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), ""))
+        }
+
+        "al aplicar un parser de contenido string('hola') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
+          assertParserSucceededWithResult(string("hola").sepBy(string("chau"))("holachauholachauhola"), (List("hola", "hola", "hola"), ""))
+        }
+
+        "Si encuentra el separador parsea correctamente" in {
+          val integer = digit.+.map{ case parsedList => parsedList.foldLeft ( 0 ) {(total, element) => total * 10 + (element.toString.toInt) } }
+          val numeroDeTelefono = integer.sepBy(char('-'))
+          println(numeroDeTelefono("1234-5678"))
+          assertParserSucceededWithResult(numeroDeTelefono("1234-5678"), (List(1234, 5678), ""))
+        }
+
+        "Si no puede parsear con el parser y el separador una vez rompe" in {
+          val integer = digit.+.map{ case parsedList => parsedList.foldLeft ( 0 ) {(total, element) => total * 10 + (element.toString.toInt) } }
+          val numeroDeTelefono = integer.sepBy(char('-'))
+          println(numeroDeTelefono("1234 5678"))
+          assertNotFoundCharacter(numeroDeTelefono("1234 5678").get)
         }
       }
 

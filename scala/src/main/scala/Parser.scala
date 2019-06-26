@@ -48,16 +48,18 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
-  def const[U](constantValue: U) = new Parser[U](input =>
-    this.map(_ => constantValue)(input)
-  )
+  def const[U](constantValue: U) = new Parser[U]( this.map(_ => constantValue)(_) )
 
   def map[U](mapper: T => U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
   )
 
-  def sepBy[U](separator: Parser[U]) : Parser[List[T]] = new Parser(
-    (this <~ separator).*(_)
+  def sepBy[U](separator: Parser[U]) = new Parser(
+    (this <~ separator ).+.<>(this.opt)
+      .map{
+        case(list, Some(parsedElement)) =>  list :+ parsedElement
+        case(list, None) =>  list
+      }(_)
   )
 
 }
