@@ -346,6 +346,13 @@ class ParserTest extends FreeSpec with Matchers {
         }
       }
 
+      "map" - {
+        "si el parser original devuelve un string 'capo', el map devuelve un 'capo, groso'" in {
+          val mapParser = string("capo").map(output => output + ", groso")
+          assertParserSucceededWithResult(mapParser("capohola"), ("capo, groso", "hola"))
+        }
+      }
+
     }
   }
 }

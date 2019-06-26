@@ -45,11 +45,15 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
 
   def + = new Parser[List[T]](
-    this(_).flatMap { case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
+    this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
   def const[U](constantValue: U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (constantValue, notConsumed) }
+  )
+
+  def map[U](mapper: T => U) = new Parser[U](
+    this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
   )
 
 }
