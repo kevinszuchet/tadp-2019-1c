@@ -346,10 +346,23 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(trueParser("truetest"), (true, "test"))
         }
 
+        "Al parsear el string 1234 con el parser integer y la constante sea el int 1234 debería devolver (1234, )" in {
+          assertParserSucceededWithResult(integer.const(1234)("1234"), (1234, ""))
+        }
+
+        "Al parsear el string 123456 con el parser integer y la constante sea el int 1234 debería devolver (1234, )" in {
+          assertParserSucceededWithResult(integer.const(1234)("123456"), (1234, ""))
+        }
+
+        "Al parsear el string cccqli con el parser char(c)* y la constante sea el int 1234 debería devolver (1234, qli)" in {
+          assertParserSucceededWithResult((char('c')*).const(1234)("cccqli"), (1234, "qli"))
+        }
+
         "El resultado debería ser Failure(NotTheRightStringException), si es que no lo puedo parsear." in {
           val trueParser = string("true").const(true)
           assertNotTheRightStringException( trueParser("test").get )
         }
+
       }
 
       "map" - {
