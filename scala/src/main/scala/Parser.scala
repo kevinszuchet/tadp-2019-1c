@@ -48,12 +48,16 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
-  def const[U](constantValue: U) = new Parser[U]( input =>
+  def const[U](constantValue: U) = new Parser[U](input =>
     this.map(_ => constantValue)(input)
   )
 
   def map[U](mapper: T => U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
+  )
+
+  def sepBy[U](separator: Parser[U]) : Parser[List[T]] = new Parser(
+    (this <~ separator).*(_)
   )
 
 }
@@ -69,7 +73,7 @@ class anyCharWithCondition(condition: ParserCondition[Char], exception: String =
   input => anyChar.satisfies(condition)(input).orElse(Failure(exception(input)))
 )
 
-case class char(char: Char) extends anyCharWithCondition(_ == char, new CharacterNotFoundException(char, _))
+case class char(char: Char) extends anyCharWithCondition( _ == char, new CharacterNotFoundException(char, _))
 
 case object void extends NonEmptyInputParser[Unit](input => Success((), input.tail))
 

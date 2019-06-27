@@ -260,7 +260,7 @@ class ParserTest extends FreeSpec with Matchers {
           assertNotFoundCharacter((char('z') <~ digit)("test").get)
         }
 
-        "si falla el segundo parser deberia devolver el error del primero" in {
+        "si falla el segundo parser deberia devolver el error del segundo" in {
           assertNotADigit((char('t') <~ digit)("test").get)
         }
       }
@@ -363,6 +363,20 @@ class ParserTest extends FreeSpec with Matchers {
           }
 
           assertParserSucceededWithResult(mapParser("probandomi amor por ti"), (("probando", 'm', "i amor por ti"), "i amor por ti"))
+        }
+      }
+
+      "sepBy" - {
+        "al aplicar un parser de contenido anyChar y uno separador char(-), deberia devolver los caracteres que no son el separados" in {
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a-"), (List('h', 'o', 'l', 'a'), ""))
+        }
+
+        "si llega un punto en que falta un separador, devuelve lo ultimo antes del separador faltante" in {
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a"), (List('h', 'o', 'l'), "a"))
+        }
+
+        "al aplicar un parser de contenido string('test') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
+          assertParserSucceededWithResult(string("hola").sepBy(string("chau"))("holachauholachauholachau"), (List("hola", "hola", "hola"), ""))
         }
       }
 
