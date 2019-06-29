@@ -51,8 +51,8 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   def sepBy[U](separator: Parser[U]) : Parser[List[T]] = new Parser(
     ( (this <~ separator).+  <> this.opt )
       .map{
-        case(list, Some(parsedElement)) =>  list :+ parsedElement
-        case(list, None) =>  list
+        case(parsedElements, Some(parsedElement)) =>  parsedElements :+ parsedElement
+        case(parsedElements, None) =>  parsedElements
       }(_)
   )
 
@@ -85,10 +85,12 @@ case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException
 case object alphaNum extends NonEmptyInputParser[Char](
   input => (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
 )
+
 case object integer extends Parser[Int] (
   input => digit.+.map{ case parsedList => parsedList.foldLeft ( 0 ) {(total, element) => total * 10 + (element.toString.toInt) } }(input)
     .orElse(Failure(new NotAnIntegerException(input)))
 )
+
 case class string(string: String) extends NonEmptyInputParser[String](
   input =>
     if (input.startsWith(string))

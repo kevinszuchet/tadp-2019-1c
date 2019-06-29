@@ -409,7 +409,7 @@ class ParserTest extends FreeSpec with Matchers {
       }
 
       "sepBy" - {
-        "al aplicar un parser de contenido anyChar y uno separador char(-), deberia devolver los caracteres que no son el separados" in {
+        "al aplicar un parser de contenido anyChar y uno separador char(-), deberia devolver los caracteres que no son el separador" in {
           assertParserSucceededWithResult(anyChar.sepBy(char('-'))("h-o-l-a"), (List('h', 'o', 'l', 'a'), ""))
         }
 
@@ -439,10 +439,6 @@ class ParserTest extends FreeSpec with Matchers {
           val numeroDeTelefono = integer.sepBy(char('-'))
           println(numeroDeTelefono("1234 5678"))
           assertNotFoundCharacter(numeroDeTelefono("1234 5678").get)
-        }
-
-        "Al parsear 4356-1234 con el parser integer y el separador char(-) devería devolveer (List(4356, 1234), )" in {
-          assertParserSucceededWithResult(integer.sepBy(char('-'))("4356-1234"), (List(4356, 1234), ""))
         }
       }
 
