@@ -418,11 +418,11 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "si llega un punto en que falla la secuencia con el separador, devuelve lo ultimo antes del separador faltante" in {
-          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "bbbb"))
+          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "-bbbb"))
         }
 
-        "si la cadena termina con un separador, devuelve lo parseado hasta el ultimo separador" in {
-          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), ""))
+        "si la cadena termina con un separador, devuelve lo parseado hasta y no consume el ultimo separador" in {
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), "-"))
         }
 
         "al aplicar un parser de contenido string('hola') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
@@ -435,10 +435,14 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(numeroDeTelefono("1234-5678"), (List(1234, 5678), ""))
         }
 
-        "Si no puede parsear con el parser y el separador una vez rompe" in {
+        "Si no encuentra ningun separador pero puede parsear arranca a parsearo y devuelve lo que resta" in {
           val numeroDeTelefono = integer.sepBy(char('-'))
-          println(numeroDeTelefono("1234 5678"))
-          assertNotFoundCharacter(numeroDeTelefono("1234 5678").get)
+          assertParserSucceededWithResult(numeroDeTelefono("1234 5678"), (List(1234), " 5678"))
+        }
+
+        "Si no puede parsear con el parser rompe" in {
+          val numeroDeTelefono = integer.sepBy(char('-'))
+          assertNotAnInteger(numeroDeTelefono("a1234-5678").get)
         }
       }
 
