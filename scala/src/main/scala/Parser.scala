@@ -49,7 +49,7 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
 
   def sepBy[U](separator: Parser[U]) = new Parser(
-    (this <~ separator ).+.<>(this.opt)
+    ( (this <~ separator).+  <> this.opt )
       .map{
         case(list, Some(parsedElement)) =>  list :+ parsedElement
         case(list, None) =>  list
@@ -61,7 +61,6 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   def map[U](mapper: T => U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
   )
-
 }
 
 class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
