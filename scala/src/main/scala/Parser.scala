@@ -48,7 +48,7 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
-  def sepBy[U](separator: Parser[U]) = new Parser(
+  def sepBy[U](separator: Parser[U]) : Parser[List[T]] = new Parser(
     ( (this <~ separator).+  <> this.opt )
       .map{
         case(list, Some(parsedElement)) =>  list :+ parsedElement
