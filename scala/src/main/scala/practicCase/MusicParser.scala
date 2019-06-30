@@ -49,4 +49,18 @@ package object MusicParser {
   case object melodiaParser extends Parser[Melodia](
     tocableParser.+(_)
   )
+
+  case object acordeExplicitoParser extends Parser[Acorde](
+    (tonoParser.sepBy(char('+')) <> figuraParser).map{ case (tonos, figura) => Acorde(tonos, figura) }(_)
+  )
+
+  case object acordeMenorMayorParser extends Parser[Acorde](
+    ( ( tonoParser <> ( char('m') <|> char('M') ) ) <> figuraParser )
+      .map{
+        case ((Tono(octava, nota), 'm'), figura) => nota.acordeMenor(octava, figura)
+        case ((Tono(octava, nota), 'M'), figura) => nota.acordeMayor(octava, figura)
+      }(_)
+  )
+
+  case object acordeParser extends Parser[Acorde]( (acordeExplicitoParser <|> acordeMenorMayorParser)(_) )
 }
