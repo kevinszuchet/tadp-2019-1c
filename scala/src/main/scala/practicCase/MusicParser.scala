@@ -2,6 +2,7 @@ import Musica._
 
 package object MusicParser {
 
+  //Silencio
   case object silencioParser extends Parser[Silencio](
     ( char('_') <|> char('-') <|> char('~') )
       .map{
@@ -11,6 +12,7 @@ package object MusicParser {
       }(_)
   )
 
+  //Sonido
   case object notaParser extends Parser[Nota](
     anyChar
       .map( charNota => Nota.notas.find(_.toString == charNota.toString).getOrElse(throw new NotANoteException(charNota)))
@@ -40,6 +42,7 @@ package object MusicParser {
     ( tonoParser <> figuraParser ).map{ case (tono, figura) => Sonido(tono, figura) }(_)
   )
 
+  //Acorde
   case object acordeExplicitoParser extends Parser[Acorde](
     (tonoParser.sepBy(char('+')) <> figuraParser).map{ case (tonos, figura) => Acorde(tonos, figura) }(_)
   )
@@ -53,5 +56,9 @@ package object MusicParser {
   )
 
   case object acordeParser extends Parser[Acorde]( (acordeExplicitoParser <|> acordeMenorMayorParser)(_) )
+
+  //Tocable
+  case object tocableParser extends Parser[Tocable]( (silencioParser <|> sonidoParser <|> acordeParser)(_) )
+
 
 }

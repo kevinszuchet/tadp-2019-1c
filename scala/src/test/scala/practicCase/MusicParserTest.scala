@@ -157,6 +157,27 @@ class MusicParserTest extends FreeSpec with Matchers {
 
     }
 
+    "tocable" - {
+      //Silencio
+      "deberia devolver un silencio de Blanca" in {
+        assertParserSucceededWithResult(tocableParser("_ el resto no parseado"), (Silencio(Blanca), " el resto no parseado"))
+      }
+      //Sonido
+      "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
+        assertParserSucceededWithResult(tocableParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
+      }
+      //Acorde
+      "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
+        assertParserSucceededWithResult(tocableParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
+      }
+      "debería ser el acorde 6 A mayor, que dura como una Blanca" in {
+        assertParserSucceededWithResult(tocableParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
+      }
+      "deberia Fallar porque no puede parsear ningun tocable" in {
+        assertParserFailureAnyException(tocableParser("test"))
+      }
+    }
+
   }
 
 }
