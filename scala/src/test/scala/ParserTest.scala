@@ -424,11 +424,11 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "si llega un punto en que falla la secuencia con el separador, devuelve lo ultimo antes del separador faltante" in {
-          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "-bbbb"))
+          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "bbbb"))
         }
 
         "si la cadena termina con un separador, devuelve lo parseado hasta y no consume el ultimo separador" in {
-          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), "-"))
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), ""))
         }
 
         "al aplicar un parser de contenido string('hola') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
