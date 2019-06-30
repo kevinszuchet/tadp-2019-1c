@@ -56,7 +56,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(notaParser("C# el resto no parseado"), (Cs, " el resto no parseado"))
       }
       "deberia devolver una nota G bemol" in {
-        assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (G.bemol, " el resto no parseado"))
+        assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (Fs, " el resto no parseado"))
       }
       "deberia Fallar porque no puede parsear ninguna Nota" in {
         assertNotANoteException(notaParser("test"))
