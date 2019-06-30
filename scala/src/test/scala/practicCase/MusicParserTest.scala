@@ -70,11 +70,11 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia devolver una nota G bemol" in {
         assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (Fs, " el resto no parseado"))
       }
+      "deberia fallar cuando el nombre de la nota esta seguida por un modificador que no es ni b ni #" in {
+        assertParserSucceededWithResult(notaParser("Ap"), (A, "p"))
+      }
       "deberia Fallar porque no puede parsear ninguna Nota" in {
         assertNotANoteException(notaParser("test"))
-      }
-      "deberia fallar cuando el nombre de la nota esta seguida por un modificador que no es ni b ni #" in {
-        assertNotANoteException(notaParser("Ap"))
       }
     }
 
