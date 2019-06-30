@@ -12,7 +12,11 @@ class MusicParserTest extends FreeSpec with Matchers {
   }
 
   def assertParserFailureAnyException[T](actualResult: Try[T]): Unit = {
-      actualResult.toOption shouldBe None
+    actualResult.toOption shouldBe None
+  }
+
+  def assertNotANoteException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotANoteException](actualResult.get)
   }
 
 
@@ -55,7 +59,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (G.bemol, " el resto no parseado"))
       }
       "deberia Fallar porque no puede parsear ninguna Nota" in {
-        assertParserFailureAnyException(notaParser("test"))
+        assertNotANoteException(notaParser("test"))
       }
     }
 
