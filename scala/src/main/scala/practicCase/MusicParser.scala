@@ -27,7 +27,7 @@ package object MusicParser {
     (integer <> notaParser).map{ case (octava, nota) => Tono(octava, nota) }(_)
   )
 
-  case object figuraParser extends Parser[Figura](
+  case object figuraParser extends Parser[Figura](input =>
     ( string("1/16") <|> string("1/2") <|> string("1/4")  <|> string("1/8") <|> string("1/1") )
       .map{
         case "1/1" => Redonda
@@ -35,7 +35,8 @@ package object MusicParser {
         case "1/4" => Negra
         case "1/8" => Corchea
         case "1/16" => SemiCorchea
-      }(_)
+      }(input)
+    .orElse(throw new NotAFigureException(input))
   )
 
   case object sonidoParser extends Parser[Sonido](

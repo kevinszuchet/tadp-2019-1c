@@ -15,8 +15,24 @@ class MusicParserTest extends FreeSpec with Matchers {
     actualResult.toOption shouldBe None
   }
 
+  def assertNotASilenceException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotASilenceException](actualResult.get)
+  }
+
   def assertNotANoteException[T](actualResult: Try[T]): Unit = {
     assertThrows[NotANoteException](actualResult.get)
+  }
+
+  def assertNotAToneException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotAToneException](actualResult.get)
+  }
+
+  def assertNotAFigureException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotAFigureException](actualResult.get)
+  }
+
+  def assertNotASoundException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotASoundException](actualResult.get)
   }
 
 
@@ -36,7 +52,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(silencioParser("~ el resto no parseado"), (Silencio(Corchea), " el resto no parseado"))
       }
       "deberia Fallar porque no puede parsear ningun silencio" in {
-        assertParserFailureAnyException(silencioParser("test"))
+        assertNotASilenceException(silencioParser("test"))
       }
     }
 
@@ -78,7 +94,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(tonoParser("2C#"), (Tono(2, Cs), ""))
       }
       "deberia Fallar porque no puede parsear ningun Tono" in {
-        assertParserFailureAnyException(tonoParser("test"))
+        assertNotAToneException(tonoParser("test"))
       }
     }
 
@@ -101,8 +117,8 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia devolver una figura SemiCorchea" in {
         assertParserSucceededWithResult(figuraParser("1/16 el resto no parseado"), (SemiCorchea, " el resto no parseado"))
       }
-      "deberia Fallar porque no puede parsear ningun silencio" in {
-        assertParserFailureAnyException(figuraParser("test"))
+      "deberia Fallar porque no puede parsear ninguna figura" in {
+        assertNotAFigureException(figuraParser("test"))
       }
     }
 
