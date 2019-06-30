@@ -139,6 +139,9 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia fallar cuando el sonido tiene una nota desconocida" in {
         assertNotANoteException(sonidoParser("4P1/1"))
       }
+      "deberia fallar cuando el sonido tiene una nota erronea" in {
+        assertNotAFigureException(sonidoParser("4Ap1/1"))
+      }
     }
 
     "acorde" - {
