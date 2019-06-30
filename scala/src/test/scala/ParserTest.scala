@@ -35,8 +35,14 @@ class ParserTest extends FreeSpec with Matchers {
   def assertNotSatisfiesException[T](actualResult: ⇒ T)= {
     assertThrows[NotSatisfiesException[T]](actualResult)
   }
+
   def assertNotAnInteger[T](actualResult: ⇒ T)= {
     assertThrows[NotAnIntegerException](actualResult)
+  }
+
+  def assertNotAnIntegerWithNotConsumed[T](actualResult: ⇒ T, notConsumed : String) = {
+    val caught = intercept[NotAnIntegerException](actualResult)
+    assert(caught.getMessage.equals(notConsumed))
   }
 
   "Parsers" - {
@@ -443,6 +449,11 @@ class ParserTest extends FreeSpec with Matchers {
         "Si no puede parsear con el parser rompe" in {
           val numeroDeTelefono = integer.sepBy(char('-'))
           assertNotAnInteger(numeroDeTelefono("a1234-5678").get)
+        }
+
+        "si no se puede parsear una segunda vez con el parser de contenido, lo no consumido es aquello que hace que no se pueda parsear" in {
+          val numeroDeTelefono = integer.sepBy(char('-'))
+          assertParserSucceededWithResult(numeroDeTelefono("1234-a5678"), (List(1234), "a5678"))
         }
       }
 
