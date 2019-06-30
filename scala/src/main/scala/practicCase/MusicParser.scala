@@ -23,7 +23,9 @@ package object MusicParser {
     (_)
   )
 
-  case object tonoParser extends Parser[Tono]( (integer <> notaParser).map{ case (octava, nota) => Tono(octava, nota)}(_) )
+  case object tonoParser extends Parser[Tono](
+    (integer <> notaParser).map{ case (octava, nota) => Tono(octava, nota) }(_)
+  )
 
   case object figuraParser extends Parser[Figura](
     ( string("1/16") <|> string("1/2") <|> string("1/4")  <|> string("1/8") <|> string("1/1") )
@@ -40,4 +42,11 @@ package object MusicParser {
     ( tonoParser <> figuraParser ).map{ case (tono, figura) => Sonido(tono, figura) }(_)
   )
 
+  case object tocableParser extends Parser[Tocable](
+    (silencioParser <|> sonidoParser)(_)
+  )
+
+  case object melodiaParser extends Parser[Melodia](
+    tocableParser.+(_)
+  )
 }
