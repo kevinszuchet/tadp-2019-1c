@@ -23,18 +23,13 @@ class MusicParserTest extends FreeSpec with Matchers {
     assertThrows[NotANoteException](actualResult.get)
   }
 
-  def assertNotAToneException[T](actualResult: Try[T]): Unit = {
-    assertThrows[NotAToneException](actualResult.get)
+  def assertNotAnInteger[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotAnIntegerException](actualResult.get)
   }
 
   def assertNotAFigureException[T](actualResult: Try[T]): Unit = {
     assertThrows[NotAFigureException](actualResult.get)
   }
-
-  def assertNotASoundException[T](actualResult: Try[T]): Unit = {
-    assertThrows[NotASoundException](actualResult.get)
-  }
-
 
   "Music Parsers" - {
 
@@ -94,7 +89,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(tonoParser("2C#"), (Tono(2, Cs), ""))
       }
       "deberia Fallar porque no puede parsear ningun Tono" in {
-        assertNotAToneException(tonoParser("test"))
+        assertNotAnInteger(tonoParser("test"))
       }
     }
 
@@ -133,7 +128,10 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(sonidoParser("99D1/16 el resto no parseado"), (Sonido(Tono(99, D), SemiCorchea), " el resto no parseado"))
       }
       "deberia Fallar porque no puede parsear ningun Sonido" in {
-        assertParserFailureAnyException(sonidoParser("test"))
+        assertNotAnInteger(sonidoParser("test"))
+      }
+      "deberia fallar cuando el sonido tiene una nota desconocida" in {
+        assertNotANoteException(sonidoParser("4P1/1"))
       }
       "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
         assertParserSucceededWithResult(sonidoParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
