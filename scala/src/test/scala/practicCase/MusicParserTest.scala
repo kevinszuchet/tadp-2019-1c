@@ -17,6 +17,7 @@ class MusicParserTest extends FreeSpec with Matchers {
 
 
   "Music Parsers" - {
+
     "silencio" - {
       "deberia devolver un silencio de Blanca y nada en lo no consumido" in {
         assertParserSucceededWithResult(silencioParser("_"), (Silencio(Blanca), ""))
@@ -114,6 +115,46 @@ class MusicParserTest extends FreeSpec with Matchers {
       "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
         assertParserSucceededWithResult(sonidoParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
       }
+    }
+
+    "acorde" - {
+
+      "acorde Explicito" - {
+        "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
+          assertParserSucceededWithResult(acordeExplicitoParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
+        }
+        "deberia Fallar porque no puede parsear ningun acorde explicito" in {
+          assertParserFailureAnyException(acordeExplicitoParser("6AM1/2"))
+        }
+        "deberia Fallar porque no puede parsear ningun acorde" in {
+          assertParserFailureAnyException(acordeExplicitoParser("test"))
+        }
+      }
+
+      "acorde MayorMenor" - {
+        "debería ser el acorde 6 A mayor, que dura como una Blanca." in {
+          assertParserSucceededWithResult(acordeMenorMayorParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
+        }
+        "deberia Fallar porque no puede parsear ningun acorde mayor menor" in {
+          assertParserFailureAnyException(acordeMenorMayorParser("6A+6C#+6G1/8"))
+        }
+        "deberia Fallar porque no puede parsear ningun acorde" in {
+          assertParserFailureAnyException(acordeMenorMayorParser("test"))
+        }
+      }
+
+      "acorde parser" - {
+        "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
+          assertParserSucceededWithResult(acordeParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
+        }
+        "debería ser el acorde 6 A mayor, que dura como una Blanca" in {
+          assertParserSucceededWithResult(acordeParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
+        }
+        "deberia Fallar porque no puede parsear ningun acorde" in {
+          assertParserFailureAnyException(acordeParser("test"))
+        }
+      }
+
     }
 
   }
