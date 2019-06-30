@@ -178,6 +178,16 @@ class MusicParserTest extends FreeSpec with Matchers {
       }
     }
 
+    "melodia" - {
+
+      "debería ser una lista con los sonidos Sonido(Tono(4,C),Negra), Sonido(Tono(4,C),Negra), Sonido(Tono(4,D),Blanca), Sonido(Tono(4,C),Negra)" in {
+        assertParserSucceededWithResult(melodiaParser("4C1/4 4C1/4 4D1/2 4C1/4"), (List(Sonido(Tono(4,C),Negra), Sonido(Tono(4,C),Negra), Sonido(Tono(4,D),Blanca), Sonido(Tono(4,C),Negra)), ""))
+      }
+      "deberia Fallar porque no puede parsear ninguna melodia" in {
+        assertParserFailureAnyException(melodiaParser("test"))
+      }
+    }
+
   }
 
 }

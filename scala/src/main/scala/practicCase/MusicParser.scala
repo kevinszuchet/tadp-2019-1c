@@ -60,5 +60,7 @@ package object MusicParser {
   //Tocable
   case object tocableParser extends Parser[Tocable]( (silencioParser <|> sonidoParser <|> acordeParser)(_) )
 
+  //Melodia
+  case object melodiaParser extends Parser[Melodia](tocableParser.sepBy(char(' '))(_))
 
 }
