@@ -13,6 +13,7 @@ package object MusicParser {
       .orElse((throw new NotASilenceException(input)))
   )
 
+  //TODO si el input esta vacio, creo que querriamos que tambien devuelva un NotANoteException y por ahora no lo hace
   //Sonido
   case object notaParser extends Parser[Nota](
     anyChar

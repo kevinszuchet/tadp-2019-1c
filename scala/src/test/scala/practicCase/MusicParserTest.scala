@@ -73,6 +73,9 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia Fallar porque no puede parsear ninguna Nota" in {
         assertNotANoteException(notaParser("test"))
       }
+      "deberia fallar cuando el nombre de la nota esta seguida por un modificador que no es ni b ni #" in {
+        assertNotANoteException(notaParser("Ap"))
+      }
     }
 
     "tono" - {
@@ -127,14 +130,14 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia devolver un sonido con tono(octava 99 y nota D) y figura semicorchea" in {
         assertParserSucceededWithResult(sonidoParser("99D1/16 el resto no parseado"), (Sonido(Tono(99, D), SemiCorchea), " el resto no parseado"))
       }
+      "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
+        assertParserSucceededWithResult(sonidoParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
+      }
       "deberia Fallar porque no puede parsear ningun Sonido" in {
         assertNotAnInteger(sonidoParser("test"))
       }
       "deberia fallar cuando el sonido tiene una nota desconocida" in {
         assertNotANoteException(sonidoParser("4P1/1"))
-      }
-      "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
-        assertParserSucceededWithResult(sonidoParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
       }
     }
 
