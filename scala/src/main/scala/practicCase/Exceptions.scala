@@ -1,0 +1,1 @@
+class NotANoteException(val read: Char) extends Exception(s"Expected [A|B|C|D|E|F|G] but got $read")
