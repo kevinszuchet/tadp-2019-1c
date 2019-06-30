@@ -12,7 +12,11 @@ class MusicParserTest extends FreeSpec with Matchers {
   }
 
   def assertParserFailureAnyException[T](actualResult: Try[T]): Unit = {
-      actualResult.toOption shouldBe None
+    actualResult.toOption shouldBe None
+  }
+
+  def assertNotANoteException[T](actualResult: Try[T]): Unit = {
+    assertThrows[NotANoteException](actualResult.get)
   }
 
 
@@ -53,22 +57,25 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertParserSucceededWithResult(notaParser("C# el resto no parseado"), (Cs, " el resto no parseado"))
       }
       "deberia devolver una nota G bemol" in {
-        assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (G.bemol, " el resto no parseado"))
+        assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (Fs, " el resto no parseado"))
       }
       "deberia Fallar porque no puede parsear ninguna Nota" in {
-        assertParserFailureAnyException(notaParser("test"))
+        assertNotANoteException(notaParser("test"))
       }
     }
 
     "tono" - {
-      "deberia devolver una tono con octava 4 y nota A, y nada en lo no consumido" in {
+      "deberia devolver un tono con octava 4 y nota A, y nada en lo no consumido" in {
         assertParserSucceededWithResult(tonoParser("4A"), (Tono(4, A), ""))
       }
-      "deberia devolver una tono con octava 9 y nota F" in {
+      "deberia devolver un tono con octava 9 y nota F" in {
         assertParserSucceededWithResult(tonoParser("9F el resto no parseado"), (Tono(9, F), " el resto no parseado"))
       }
-      "deberia devolver una tono con octava 148 y nota E" in {
+      "deberia devolver un tono con octava 148 y nota E" in {
         assertParserSucceededWithResult(tonoParser("148E el resto no parseado"), (Tono(148, E), " el resto no parseado"))
+      }
+      "deberia parsear un tono con octava 2 y nota C#" in {
+        assertParserSucceededWithResult(tonoParser("2C#"), (Tono(2, Cs), ""))
       }
       "deberia Fallar porque no puede parsear ningun Tono" in {
         assertParserFailureAnyException(tonoParser("test"))

@@ -393,11 +393,9 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(integer("9"), (9, ""))
         }
         "al parsear el string 12A34 parsea los digitos que puede y devuelve el resto" in {
-          println(integer("12A34"))
           assertParserSucceededWithResult(integer("12A34"), (12, "A34"))
         }
         "al parsear el string 4232x parsea el numero 4232 y no consume la x" in {
-          println(integer("4232x"))
           assertParserSucceededWithResult(integer("4232x"), (4232, "x"))
         }
         "al parsear el string vacío falla" in {
@@ -431,7 +429,6 @@ class ParserTest extends FreeSpec with Matchers {
 
         "Si encuentra el separador parsea correctamente" in {
           val numeroDeTelefono = integer.sepBy(char('-'))
-          println(numeroDeTelefono("1234-5678"))
           assertParserSucceededWithResult(numeroDeTelefono("1234-5678"), (List(1234, 5678), ""))
         }
 
