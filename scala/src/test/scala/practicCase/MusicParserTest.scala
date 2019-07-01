@@ -31,6 +31,10 @@ class MusicParserTest extends FreeSpec with Matchers {
     assertThrows[NotAFigureException](actualResult.get)
   }
 
+  def assertCharacterNotFoundException[T](actualResult: Try[T]): Unit = {
+    assertThrows[CharacterNotFoundException](actualResult.get)
+  }
+
   "Music Parsers" - {
 
     "silencio" - {
@@ -157,30 +161,29 @@ class MusicParserTest extends FreeSpec with Matchers {
         }
       }
 
-      "acorde MayorMenor" - {
+      "acorde MenorMayor" - {
         "debería ser el acorde 6 A mayor, que dura como una Blanca." in {
           assertParserSucceededWithResult(acordeMenorMayorParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
         }
-        "deberia Fallar porque no puede parsear ningun acorde mayor menor" in {
-          assertParserFailureAnyException(acordeMenorMayorParser("6A+6C#+6G1/8"))
+        "deberia fallar porque no puede parsear un acorde explicito (al intentar el m o M)" in {
+          assertCharacterNotFoundException(acordeMenorMayorParser("6A+6C#+6G1/8"))
         }
-        "deberia Fallar porque no puede parsear ningun acorde" in {
-          assertParserFailureAnyException(acordeMenorMayorParser("test"))
+        "deberia fallar porque no puede parsear un tono que no empieza con la octava" in {
+          assertNotAnInteger(acordeMenorMayorParser("test"))
         }
       }
 
-      "acorde parser" - {
+      "acordeParser" - {
         "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
           assertParserSucceededWithResult(acordeParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
         }
         "debería ser el acorde 6 A mayor, que dura como una Blanca" in {
           assertParserSucceededWithResult(acordeParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
         }
-        "deberia Fallar porque no puede parsear ningun acorde" in {
-          assertParserFailureAnyException(acordeParser("test"))
+        "deberia fallar porque no puede parsear un acorder explicito ni menorMayor" in {
+          assertNotAnInteger(acordeParser("test"))
         }
       }
-
     }
 
     "tocable" - {
