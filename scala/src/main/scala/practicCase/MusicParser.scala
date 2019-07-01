@@ -1,8 +1,6 @@
 import Musica._
 
 package object MusicParser {
-
-  //Silencio
   case object silencioParser extends Parser[Silencio](input =>
     ( char('_') <|> char('-') <|> char('~') )
       .map{
@@ -14,7 +12,6 @@ package object MusicParser {
   )
 
   //TODO si el input esta vacio, creo que querriamos que tambien devuelva un NotANoteException y por ahora no lo hace
-  //Sonido
   case object notaParser extends Parser[Nota](
     anyChar
       .map( charNota => Nota.notas.find(_.toString == charNota.toString).getOrElse(throw new NotANoteException(charNota)))
@@ -61,10 +58,8 @@ package object MusicParser {
 
   case object acordeParser extends Parser[Acorde]( (acordeExplicitoParser <|> acordeMenorMayorParser)(_) )
 
-  //Tocable
   case object tocableParser extends Parser[Tocable]( (silencioParser <|> sonidoParser <|> acordeParser)(_) )
 
-  //Melodia
   case object melodiaParser extends Parser[Melodia](tocableParser.sepBy(char(' '))(_))
 
 }

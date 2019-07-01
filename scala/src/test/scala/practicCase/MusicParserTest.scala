@@ -70,7 +70,7 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia devolver una nota G bemol" in {
         assertParserSucceededWithResult(notaParser("Gb el resto no parseado"), (Fs, " el resto no parseado"))
       }
-      "deberia fallar cuando el nombre de la nota esta seguida por un modificador que no es ni b ni #" in {
+      "deberia sólo parsear el nombre de la nota cuando el mismo esta seguido por un modificador que no es ni # ni b" in {
         assertParserSucceededWithResult(notaParser("Ap"), (A, "p"))
       }
       "deberia Fallar porque no puede parsear ninguna Nota" in {
@@ -133,7 +133,7 @@ class MusicParserTest extends FreeSpec with Matchers {
       "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
         assertParserSucceededWithResult(sonidoParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
       }
-      "deberia Fallar porque no puede parsear ningun Sonido" in {
+      "deberia fallar porque no puede parsear la octava del tono" in {
         assertNotAnInteger(sonidoParser("test"))
       }
       "deberia fallar cuando el sonido tiene una nota desconocida" in {
@@ -145,16 +145,15 @@ class MusicParserTest extends FreeSpec with Matchers {
     }
 
     "acorde" - {
-
       "acorde Explicito" - {
         "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
           assertParserSucceededWithResult(acordeExplicitoParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
         }
-        "deberia Fallar porque no puede parsear ningun acorde explicito" in {
-          assertParserFailureAnyException(acordeExplicitoParser("6AM1/2"))
+        "deberia fallar porque no puede parsear un acorde implicito (al intentar parsear la figura)" in {
+          assertNotAFigureException(acordeExplicitoParser("6AM1/2"))
         }
-        "deberia Fallar porque no puede parsear ningun acorde" in {
-          assertParserFailureAnyException(acordeExplicitoParser("test"))
+        "deberia fallar porque no puede parsear un tono que no empieza con la octava" in {
+          assertNotAnInteger(acordeExplicitoParser("test"))
         }
       }
 
@@ -185,15 +184,12 @@ class MusicParserTest extends FreeSpec with Matchers {
     }
 
     "tocable" - {
-      //Silencio
       "deberia devolver un silencio de Blanca" in {
         assertParserSucceededWithResult(tocableParser("_ el resto no parseado"), (Silencio(Blanca), " el resto no parseado"))
       }
-      //Sonido
       "debería ser un sonido para el cual la figura es Negra y el tono está compuesto por la octava 6 y la nota A sostenido" in {
         assertParserSucceededWithResult(tocableParser("6A#1/4"), (Sonido(Tono(6, As), Negra), ""))
       }
-      //Acorde
       "debería ser un acorde con los tonos 6A, 6C#, 6G y con la duración de una Corchea" in {
         assertParserSucceededWithResult(tocableParser("6A+6C#+6G1/8"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, G)), Corchea), ""))
       }
@@ -206,7 +202,6 @@ class MusicParserTest extends FreeSpec with Matchers {
     }
 
     "melodia" - {
-
       "debería ser una lista con los sonidos Sonido(Tono(4,C),Negra), Sonido(Tono(4,C),Negra), Sonido(Tono(4,D),Blanca), Sonido(Tono(4,C),Negra)" in {
         assertParserSucceededWithResult(melodiaParser("4C1/4 4C1/4 4D1/2 4C1/4"), (List(Sonido(Tono(4,C),Negra), Sonido(Tono(4,C),Negra), Sonido(Tono(4,D),Blanca), Sonido(Tono(4,C),Negra)), ""))
       }
