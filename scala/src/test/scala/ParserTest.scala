@@ -35,8 +35,14 @@ class ParserTest extends FreeSpec with Matchers {
   def assertNotSatisfiesException[T](actualResult: ⇒ T)= {
     assertThrows[NotSatisfiesException[T]](actualResult)
   }
+
   def assertNotAnInteger[T](actualResult: ⇒ T)= {
     assertThrows[NotAnIntegerException](actualResult)
+  }
+
+  def assertNotAnIntegerWithNotConsumed[T](actualResult: ⇒ T, notConsumed : String) = {
+    val caught = intercept[NotAnIntegerException](actualResult)
+    assert(caught.getMessage.equals(notConsumed))
   }
 
   "Parsers" - {
@@ -416,11 +422,11 @@ class ParserTest extends FreeSpec with Matchers {
         }
 
         "si llega un punto en que falla la secuencia con el separador, devuelve lo ultimo antes del separador faltante" in {
-          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "-bbbb"))
+          assertParserSucceededWithResult(char('a').sepBy(char('-'))("a-a-a-a-bbbb"), (List('a', 'a', 'a', 'a'), "bbbb"))
         }
 
         "si la cadena termina con un separador, devuelve lo parseado hasta y no consume el ultimo separador" in {
-          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), "-"))
+          assertParserSucceededWithResult(anyChar.sepBy(char('-'))("a-a-a-a-"), (List('a', 'a', 'a', 'a'), ""))
         }
 
         "al aplicar un parser de contenido string('hola') y uno separador string('chau'), deberia devolver una lista con muchos 'test'" in {
@@ -440,6 +446,11 @@ class ParserTest extends FreeSpec with Matchers {
         "Si no puede parsear con el parser rompe" in {
           val numeroDeTelefono = integer.sepBy(char('-'))
           assertNotAnInteger(numeroDeTelefono("a1234-5678").get)
+        }
+
+        "si no se puede parsear una segunda vez con el parser de contenido, lo no consumido es aquello que hace que no se pueda parsear" in {
+          val numeroDeTelefono = integer.sepBy(char('-'))
+          assertParserSucceededWithResult(numeroDeTelefono("1234-a5678"), (List(1234), "a5678"))
         }
       }
 
