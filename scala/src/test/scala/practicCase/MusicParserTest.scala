@@ -10,7 +10,11 @@ class MusicParserTest extends FreeSpec with Matchers {
   def assertParserSucceededWithResult[T](actualResult: T, expectedResult: T): Unit = {
     actualResult shouldBe Success(expectedResult)
   }
-  
+
+  def assertEmptyStringException[T](actualResult: Try[T]): Unit = {
+    assertThrows[EmptyStringException](actualResult.get)
+  }
+
   def assertNotASilenceException[T](actualResult: Try[T]): Unit = {
     assertThrows[NotASilenceException](actualResult.get)
   }
@@ -73,8 +77,11 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia sólo parsear el nombre de la nota cuando el mismo esta seguido por un modificador que no es ni # ni b" in {
         assertParserSucceededWithResult(notaParser("Ap"), (A, "p"))
       }
-      "deberia Fallar porque no puede parsear ninguna Nota" in {
+      "deberia fallar porque no puede parsear ninguna Nota" in {
         assertNotANoteException(notaParser("test"))
+      }
+      "deberia fallar con un string vacio" in {
+        assertEmptyStringException(notaParser(""))
       }
     }
 
@@ -207,7 +214,7 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia parsear el tocable correcto si esta seguido por uno con un typo" in {
         assertParserSucceededWithResult(melodiaParser("4C1/4 4R1/4"), (List(Sonido(Tono(4, C), Negra)), " 4R1/4"))
       }
-      "deberia Fallar porque no puede parsear melodia invalida" in {
+      "deberia fallar porque no puede parsear melodia invalida" in {
         assertNotAnInteger(melodiaParser("test"))
       }
     }
