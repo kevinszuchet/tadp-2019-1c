@@ -40,9 +40,7 @@ class Parser[+T](criterion: String => ParserResult[T]) {
         case (parsedElement, notConsumed) =>
           this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) }
       },
-      {
-        case exception: WithNoConsumed => Success((List(), exception.notConsumed))
-      }
+      _ => Success(List(), input)
     )
   )
 
