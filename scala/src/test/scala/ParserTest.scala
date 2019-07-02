@@ -441,6 +441,14 @@ class ParserTest extends FreeSpec with Matchers {
           val numeroDeTelefono = integer.sepBy(char('-'))
           assertNotAnInteger(numeroDeTelefono("a1234-5678").get)
         }
+
+        "si solo podria parsear el separador, devuelve un Success(List(), '-')" in {
+          assertParserSucceededWithResult((char('a').sepBy(char('-')))("-"), (List(), "-"))
+        }
+
+        "con un input vacio devuelve un Success(List(), '')" in {
+          assertParserSucceededWithResult((char('a').sepBy(anyChar))(""), (List(), ""))
+        }
       }
 
     }
