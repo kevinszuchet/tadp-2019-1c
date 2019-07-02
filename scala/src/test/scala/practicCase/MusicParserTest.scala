@@ -199,8 +199,8 @@ class MusicParserTest extends FreeSpec with Matchers {
       "debería ser el acorde 6 A mayor, que dura como una Blanca" in {
         assertParserSucceededWithResult(tocableParser("6AM1/2"), (Acorde(List(Tono(6, A), Tono(6, Cs), Tono(6, E)), Blanca), ""))
       }
-      "deberia Fallar porque no puede parsear ningun tocable" in {
-        assertParserFailureAnyException(tocableParser("test"))
+      "deberia fallar porque no puede parsear la octava del tono de un acorde mayor de un acorde de un tocable" in {
+        assertNotAnInteger(tocableParser("test"))
       }
     }
 
