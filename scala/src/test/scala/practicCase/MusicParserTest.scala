@@ -53,6 +53,9 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia Fallar porque no puede parsear ningun silencio" in {
         assertNotASilenceException(silencioParser("test"))
       }
+      "deberia fallar con un string vacio" in {
+        assertNotASilenceException(silencioParser(""))
+      }
     }
 
     "nota" - {
@@ -81,7 +84,7 @@ class MusicParserTest extends FreeSpec with Matchers {
         assertNotANoteException(notaParser("test"))
       }
       "deberia fallar con un string vacio" in {
-        assertEmptyStringException(notaParser(""))
+        assertNotANoteException(notaParser(""))
       }
     }
 

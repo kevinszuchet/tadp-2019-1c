@@ -11,16 +11,17 @@ package object MusicParser {
       .orElse((throw new NotASilenceException(input)))
   )
 
-  case object notaParser extends Parser[Nota](
+  case object notaParser extends Parser[Nota](input =>
     anyChar
-      .map( charNota => Nota.notas.find(_.toString == charNota.toString).getOrElse(throw new NotANoteException(charNota)))
+      .map( charNota => Nota.notas.find(_.toString == charNota.toString).get)
       .<>( (char('#') <|> char('b')).opt )
       .map{
         case (nota, Some('#')) => nota.sostenido
         case (nota, Some('b')) => nota.bemol
         case (nota, None) => nota
       }
-    (_)
+    (input)
+      .orElse(throw new NotANoteException(input))
   )
 
   case object tonoParser extends Parser[Tono](
