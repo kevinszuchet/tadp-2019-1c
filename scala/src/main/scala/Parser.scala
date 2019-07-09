@@ -27,7 +27,8 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
   
   def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
-    this(input).filter(parserOutput => condition(parserOutput._1)).orElse(Failure(new NotSatisfiesException(condition, input)))
+    this(input).filter { case (parsedElement, _) => condition(parsedElement) }
+      .orElse(Failure(new NotSatisfiesException(condition, input)))
   )
 
   def opt: Parser[Option[T]] = new Parser[Option[T]](
