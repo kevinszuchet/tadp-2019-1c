@@ -437,9 +437,9 @@ class ParserTest extends FreeSpec with Matchers {
           assertParserSucceededWithResult(numeroDeTelefono("1234 5678"), (List(1234), " 5678"))
         }
 
-        "Si no puede parsear con el parser rompe" in {
+        "Si no puede parsear con el parser devuelve lista vacia" in {
           val numeroDeTelefono = integer.sepBy(char('-'))
-          assertNotAnInteger(numeroDeTelefono("a1234-5678").get)
+          assertParserSucceededWithResult(numeroDeTelefono("a1234-5678"), (List(), "a1234-5678"))
         }
 
         "si solo podria parsear el separador, devuelve un Success(List(), '-')" in {

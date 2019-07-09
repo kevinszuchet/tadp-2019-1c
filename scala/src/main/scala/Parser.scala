@@ -49,7 +49,9 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
 
   def sepBy[U](separator: Parser[U]): Parser[List[T]] = new Parser(
-      ( this <> (separator ~> this).* ).map{ case(firstElement, parsedElements) =>  firstElement :: parsedElements }(_)
+      input =>
+        ( this <> (separator ~> this).* ).map{ case(firstElement, parsedElements) =>  firstElement :: parsedElements }(input)
+          .orElse(Try((List(), input)))
   )
 
   def const[U](constantValue: U) = new Parser[U]( this.map(_ => constantValue)(_) )
