@@ -163,7 +163,7 @@ class MusicParserTest extends FreeSpec with Matchers {
           assertNotAFigureException(acordeExplicitoParser("6AM1/2"))
         }
         "deberia fallar porque no puede parsear un tono que no empieza con la octava" in {
-          assertNotAnInteger(acordeExplicitoParser("test"))
+          assertNotAFigureException(acordeExplicitoParser("test"))
         }
       }
 
@@ -217,8 +217,8 @@ class MusicParserTest extends FreeSpec with Matchers {
       "deberia parsear el tocable correcto si esta seguido por uno con un typo" in {
         assertParserSucceededWithResult(melodiaParser("4C1/4 4R1/4"), (List(Sonido(Tono(4, C), Negra)), " 4R1/4"))
       }
-      "deberia fallar porque no puede parsear melodia invalida" in {
-        assertNotAnInteger(melodiaParser("test"))
+      "si no puede parsear ni un tocable, List()" in {
+        assertParserSucceededWithResult(melodiaParser("test"), (List(), "test"))
       }
     }
 
