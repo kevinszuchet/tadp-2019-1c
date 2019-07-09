@@ -48,13 +48,12 @@ class Parser[+T](criterion: String => ParserResult[T]) {
     this(_).flatMap{ case (parsedElement, notConsumed) => this.*(notConsumed).map { case (parsed, stillNotConsumed) => (parsedElement :: parsed, stillNotConsumed) } }
   )
 
-  def sepBy[U](separator: Parser[U]): Parser[List[T]] = new Parser(
-      input =>
-        ( this <> (separator ~> this).* ).map{ case(firstElement, parsedElements) =>  firstElement :: parsedElements }(input)
-          .orElse(Try((List(), input)))
+  def sepBy[U](separator: Parser[U]): Parser[List[T]] = new Parser(input =>
+    (this <> (separator ~> this).*).map { case(firstElement, parsedElements) => firstElement :: parsedElements }(input)
+      .orElse(Try((List(), input)))
   )
 
-  def const[U](constantValue: U) = new Parser[U]( this.map(_ => constantValue)(_) )
+  def const[U](constantValue: U) = new Parser[U](this.map(_ => constantValue)(_))
 
   def map[U](mapper: T => U) = new Parser[U](
     this(_).map{ case (parsedElement, notConsumed) => (mapper(parsedElement), notConsumed) }
@@ -72,7 +71,7 @@ class anyCharWithCondition(condition: ParserCondition[Char], exception: String =
   input => anyChar.satisfies(condition)(input).orElse(Failure(exception(input)))
 )
 
-case class char(char: Char) extends anyCharWithCondition( _ == char, new CharacterNotFoundException(char, _))
+case class char(char: Char) extends anyCharWithCondition(_ == char, new CharacterNotFoundException(char, _))
 
 case object void extends NonEmptyInputParser[Unit](input => Success((), input.tail))
 
@@ -80,19 +79,18 @@ case object letter extends anyCharWithCondition(_.isLetter, new NotALetterExcept
 
 case object digit extends anyCharWithCondition(_.isDigit, new NotADigitException(_))
 
-case object alphaNum extends NonEmptyInputParser[Char](
-  input => (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
+case object alphaNum extends NonEmptyInputParser[Char](input =>
+  (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input)))
 )
 
-case object integer extends Parser[Int] (
-  input => digit.+.map{ case parsedList => parsedList.foldLeft ( 0 ) {(total, element) => total * 10 + (element.toString.toInt) } }(input)
+case object integer extends Parser[Int] (input =>
+  digit.+.map { case parsedList => parsedList.foldLeft ( 0 ) { (total, element) => total * 10 + element.toString.toInt } }(input)
     .orElse(Failure(new NotAnIntegerException(input)))
 )
 
-case class string(string: String) extends NonEmptyInputParser[String](
-  input =>
-    if (input.startsWith(string))
-      Success(string, input.slice(string.length, input.length))
-    else
-      Failure(new NotTheRightStringException(string, input))
+case class string(string: String) extends NonEmptyInputParser[String](input =>
+  if (input.startsWith(string))
+    Success(string, input.slice(string.length, input.length))
+  else
+    Failure(new NotTheRightStringException(string, input))
 )
