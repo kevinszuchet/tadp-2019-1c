@@ -19,11 +19,11 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
 
   def ~>[U](anotherParser: Parser[U]): Parser[U] = new Parser[U](  
-    this(_).flatMap { case (_, notConsumed) => anotherParser(notConsumed) }
+    (this <> anotherParser)(_).map { case ((_, anotherParserParsedElement), notConsumed) => (anotherParserParsedElement, notConsumed) }
   )
 
   def <~[U](anotherParser: Parser[U]): Parser[T] = new Parser[T](
-    this(_).flatMap { case (parsedElement, notConsumed) => anotherParser(notConsumed).map(parserOutput => (parsedElement, parserOutput._2)) }
+    (this <> anotherParser)(_).map { case ((parsedElement, _), notConsumed) => (parsedElement, notConsumed)}
   )
   
   def satisfies(condition: ParserCondition[T]) = new Parser[T](input =>
