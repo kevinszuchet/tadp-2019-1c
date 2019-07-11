@@ -2,13 +2,20 @@ import Musica._
 
 package object MusicParser {
   case object silencioParser extends Parser[Silencio](input =>
-    (char('_') <|> char('-') <|> char('~'))
+
+    (char('_').const(Silencio(Blanca))
+        <|> char('-').const(Silencio(Negra))
+        <|> char('~').const(Silencio(Corchea)))(input)
+      .orElse(throw new NotASilenceException(input))
+
+
+    /*(char('_') <|> char('-') <|> char('~'))
       .map {
         case '_' => Silencio(Blanca)
         case '-' => Silencio(Negra)
         case '~' => Silencio(Corchea)
       }(input)
-      .orElse(throw new NotASilenceException(input))
+      .orElse(throw new NotASilenceException(input)*/
   )
 
   case object notaParser extends Parser[Nota](input =>
