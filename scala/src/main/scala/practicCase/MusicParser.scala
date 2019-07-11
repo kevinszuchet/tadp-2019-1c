@@ -35,14 +35,11 @@ package object MusicParser {
   )
 
   case object figuraParser extends Parser[Figura](input =>
-    (string("1/16") <|> string("1/2") <|> string("1/4") <|> string("1/8") <|> string("1/1"))
-      .map {
-        case "1/1" => Redonda
-        case "1/2" => Blanca
-        case "1/4" => Negra
-        case "1/8" => Corchea
-        case "1/16" => SemiCorchea
-      }(input)
+    (string("1/16").const(SemiCorchea)
+      <|> string("1/2").const(Blanca)
+      <|> string("1/4").const(Negra)
+      <|> string("1/8").const(Corchea)
+      <|> string("1/1").const(Redonda))(input)
       .orElse(throw new NotAFigureException(input))
   )
 
