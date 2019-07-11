@@ -85,7 +85,7 @@ case object alphaNum extends NonEmptyInputParser[Char](input =>
 )
 
 case object integer extends Parser[Int] (input =>
-  digit.+.map { case parsedList => parsedList.foldLeft ( 0 ) { (total, element) => total * 10 + element.toString.toInt } }(input)
+  digit.+.map (parsedList => parsedList.mkString("").toInt)(input)
     .orElse(Failure(new NotAnIntegerException(input)))
 )
 
