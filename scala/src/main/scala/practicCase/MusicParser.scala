@@ -2,12 +2,9 @@ import Musica._
 
 package object MusicParser {
   case object silencioParser extends Parser[Silencio](input =>
-    (char('_') <|> char('-') <|> char('~'))
-      .map {
-        case '_' => Silencio(Blanca)
-        case '-' => Silencio(Negra)
-        case '~' => Silencio(Corchea)
-      }(input)
+    (char('_').const(Silencio(Blanca))
+        <|> char('-').const(Silencio(Negra))
+        <|> char('~').const(Silencio(Corchea)))(input)
       .orElse(throw new NotASilenceException(input))
   )
 
@@ -28,14 +25,11 @@ package object MusicParser {
   )
 
   case object figuraParser extends Parser[Figura](input =>
-    (string("1/16") <|> string("1/2") <|> string("1/4") <|> string("1/8") <|> string("1/1"))
-      .map {
-        case "1/1" => Redonda
-        case "1/2" => Blanca
-        case "1/4" => Negra
-        case "1/8" => Corchea
-        case "1/16" => SemiCorchea
-      }(input)
+    (string("1/16").const(SemiCorchea)
+      <|> string("1/2").const(Blanca)
+      <|> string("1/4").const(Negra)
+      <|> string("1/8").const(Corchea)
+      <|> string("1/1").const(Redonda))(input)
       .orElse(throw new NotAFigureException(input))
   )
 
