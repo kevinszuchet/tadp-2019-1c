@@ -64,11 +64,16 @@ class Parser[+T](criterion: String => ParserResult[T]) {
   )
 }
 
+class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
+  override def apply(input: String): ParserResult[T] =
+    if (input.isEmpty) Failure(new EmptyStringException) else super.apply(input)
+}
+
 object parsers {
   val anyChar = new NonEmptyInputParser[Char](input => Success(input.head, input.tail))
 
   val anyCharWithCondition = (condition : ParserCondition[Char], exception: String => Throwable) =>
-    new NonEmptyInputParser[Char](input => anyChar.satisfies(condition)(input).orElse(Failure(exception(input))))
+  new NonEmptyInputParser[Char](input => anyChar.satisfies(condition)(input).orElse(Failure(exception(input))))
 
   var char = (char: Char) => anyCharWithCondition(_ == char, new CharacterNotFoundException(char, _))
 
@@ -79,21 +84,16 @@ object parsers {
   val digit = anyCharWithCondition(_.isDigit, new NotADigitException(_))
 
   val alphaNum = new NonEmptyInputParser[Char](input =>
-    (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input))))
+  (letter <|> digit)(input).orElse(Failure(new NotAnAlphaNumException(input))))
 
   val integer = new Parser[Int](input =>
-    digit.+.map (parsedList => parsedList.mkString("").toInt)(input)
-      .orElse(Failure(new NotAnIntegerException(input))))
+  digit.+.map (parsedList => parsedList.mkString("").toInt)(input)
+  .orElse(Failure(new NotAnIntegerException(input))))
 
   val string = (string : String) => new NonEmptyInputParser[String](input =>
-    if (input.startsWith(string))
-      Success(string, input.slice(string.length, input.length))
-    else
-      Failure(new NotTheRightStringException(string, input))
+  if (input.startsWith(string))
+  Success(string, input.slice(string.length, input.length))
+  else
+  Failure(new NotTheRightStringException(string, input))
   )
-}
-
-class NonEmptyInputParser[T](criterion: String => ParserResult[T]) extends Parser[T](criterion) {
-  override def apply(input: String): ParserResult[T] =
-    if (input.isEmpty) Failure(new EmptyStringException) else super.apply(input)
 }
