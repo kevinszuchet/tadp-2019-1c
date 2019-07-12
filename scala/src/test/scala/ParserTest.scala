@@ -1,4 +1,5 @@
 import org.scalatest.{FreeSpec, Matchers}
+import parsers._
 
 import scala.util.{Failure, Success}
 
