@@ -1,4 +1,5 @@
 import Musica._
+import parsers._
 
 package object MusicParser {
   case object silencioParser extends Parser[Silencio](input =>
